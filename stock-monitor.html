@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实时股票监控 - Word文档风格</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "微软雅黑", "SimSun", "宋体", Arial, sans-serif;
+            background: #d4d4d4;
+            color: #000000;
+            font-size: 14px;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .word-container {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            background: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            padding: 25mm 20mm;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #2c3e50;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #000000;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .header .update-time {
+            font-size: 13px;
+            color: #666666;
+        }
+
+        .add-stock-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+
+        .add-stock-section h3 {
+            font-size: 16px;
+            color: #333333;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            position: relative;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #000000;
+            background: #ffffff;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .input-group input:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .input-group button {
+            padding: 8px 20px;
+            background: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background 0.3s;
+            font-family: inherit;
+        }
+
+        .input-group button:hover {
+            background: #0056b3;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 8px;
+        }
+
+        .search-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border: 1px solid #ddd;
+            border-top: none;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .search-dropdown.visible {
+            display: block;
+        }
+
+        .search-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-item:hover {
+            background: #f5f5f5;
+        }
+
+        .search-item-left {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .search-item-name {
+            font-weight: bold;
+            color: #000000;
+            font-size: 14px;
+        }
+
+        .search-item-code {
+            color: #666666;
+            font-size: 12px;
+            margin-top: 2px;
+            font-family: "Courier New", monospace;
+        }
+
+        .search-item-market {
+            font-size: 12px;
+            color: #999999;
+            padding: 2px 6px;
+            background: #f0f0f0;
+            border-radius: 2px;
+        }
+
+        .search-empty {
+            padding: 20px;
+            text-align: center;
+            color: #999999;
+            font-size: 14px;
+        }
+
+        .stock-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .stock-table thead {
+            background: #34495e;
+            color: #ffffff;
+        }
+
+        .stock-table th {
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            border: 1px solid #2c3e50;
+        }
+
+        .stock-table tbody tr {
+            transition: background 0.2s;
+        }
+
+        .stock-table tbody tr:hover {
+            background: #f1f3f5;
+        }
+
+        .stock-table td {
+            padding: 10px 8px;
+            border: 1px solid #dee2e6;
+            font-size: 14px;
+            color: #000000;
+        }
+
+        .stock-code {
+            font-family: "Courier New", monospace;
+            font-size: 13px;
+            color: #333333;
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 2px;
+        }
+
+        .stock-name {
+            font-weight: bold;
+            color: #000000;
+        }
+
+        .stock-price {
+            font-family: "Courier New", monospace;
+            font-weight: bold;
+            font-size: 14px;
+            color: #000000;
+        }
+
+        .stock-change-up {
+            color: #d32f2f;
+            font-family: "Courier New", monospace;
+        }
+
+        .stock-change-down {
+            color: #388e3c;
+            font-family: "Courier New", monospace;
+        }
+
+        .stock-change-flat {
+            color: #666666;
+            font-family: "Courier New", monospace;
+        }
+
+        .stock-volume {
+            font-family: "Courier New", monospace;
+            color: #666666;
+            font-size: 13px;
+        }
+
+        .delete-btn {
+            padding: 4px 8px;
+            background: none;
+            color: #666666;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+            font-family: inherit;
+        }
+
+        .delete-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #95a5a6;
+        }
+
+        .empty-state p {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+
+        @media (max-width: 210mm) {
+            .word-container {
+                width: 100%;
+                padding: 20px;
+                box-shadow: none;
+            }
+        }
+
+        .header h1[contenteditable="true"] {
+            outline: none;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            padding: 4px 8px;
+            transition: border-color 0.2s;
+            display: inline-block;
+            min-width: 200px;
+        }
+
+        .header h1[contenteditable="true"]:hover {
+            border-color: #bdc3c7;
+        }
+
+        .header h1[contenteditable="true"]:focus {
+            border-color: #3498db;
+            background: #f8f9fa;
+        }
+
+        .header h1[contenteditable="true"]:empty::before {
+            content: '点击输入标题';
+            color: #bdc3c7;
+        }
+
+        .search-dropdown::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .search-dropdown::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .search-dropdown::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+
+        .search-dropdown::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="word-container">
+        <div class="header">
+            <h1 id="pageTitle" contenteditable="true">📈 实时股票监控表</h1>
+            <div class="update-time" id="updateTime">最后更新：-</div>
+        </div>
+
+        <div class="add-stock-section">
+            <h3>添加监控标的</h3>
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    id="stockInput" 
+                    placeholder="输入股票代码、名称或简称（如：sh600519、茅台、中移）"
+                    oninput="searchStock(this.value)"
+                    onkeypress="if(event.key==='Enter') selectFirstResult()"
+                >
+                <button onclick="selectFirstResult()">添加</button>
+                <div class="search-dropdown" id="searchDropdown"></div>
+            </div>
+            <div class="hint">
+                提示：可输入股票代码（sh600519）、股票名称（茅台）或名称简称（中移、招行）进行搜索
+            </div>
+        </div>
+
+        <table class="stock-table" id="stockTable">
+            <thead>
+                <tr>
+                    <th style="width: 30px;">#</th>
+                    <th style="width: 80px;">代码</th>
+                    <th style="width: 100px;">名称</th>
+                    <th style="width: 80px;">当前价</th>
+                    <th style="width: 80px;">涨跌额</th>
+                    <th style="width: 80px;">涨跌幅</th>
+                    <th style="width: 80px;">成交量</th>
+                    <th style="width: 80px;">换手率</th>
+                    <th style="width: 60px;">操作</th>
+                </tr>
+            </thead>
+            <tbody id="stockTableBody">
+            </tbody>
+        </table>
+
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <p>📭 暂无监控标的</p>
+            <p style="font-size: 14px; margin-top: 5px;">请在上方输入框中添加股票代码或名称</p>
+        </div>
+    </div>
+
+    <script>
+        let monitoredStocks = [];
+        let updateInterval = null;
+        let stockDatabase = [];
+        let currentSearchResults = [];
+
+        window.onload = function() {
+            loadPageTitle();
+            loadStockDatabase();
+            loadStocks();
+            renderTable();
+            startAutoUpdate();
+        };
+
+        function requestJson(url, options) {
+            options = options || {};
+            if (typeof window.fetch === 'function') {
+                return fetch(url, options).then(function(response) {
+                    if (!response.ok) {
+                        throw new Error('HTTP error! status: ' + response.status);
+                    }
+                    return response.json();
+                });
+            }
+
+            return new Promise(function(resolve, reject) {
+                var xhr = new XMLHttpRequest();
+                xhr.open(options.method || 'GET', url, true);
+
+                var headers = options.headers || {};
+                Object.keys(headers).forEach(function(key) {
+                    xhr.setRequestHeader(key, headers[key]);
+                });
+
+                xhr.onload = function() {
+                    if (xhr.status < 200 || xhr.status >= 300) {
+                        reject(new Error('HTTP error! status: ' + xhr.status));
+                        return;
+                    }
+
+                    try {
+                        resolve(JSON.parse(xhr.responseText));
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+
+                xhr.onerror = function() {
+                    reject(new Error('网络请求失败'));
+                };
+
+                xhr.send(options.body || null);
+            });
+        }
+
+        async function loadStockDatabase() {
+            try {
+                stockDatabase = await requestJson('/stock-database.json');
+                console.log('股票数据库加载成功，共', stockDatabase.length, '只股票');
+
+                var input = document.getElementById('stockInput');
+                if (input && input.value.trim()) {
+                    searchStock(input.value);
+                }
+            } catch (error) {
+                console.error('加载股票数据库失败：', error);
+                var dropdown = document.getElementById('searchDropdown');
+                if (dropdown) {
+                    dropdown.innerHTML = '<div class="search-empty">股票数据库加载失败<br><span style="font-size:12px;color:#999">请确认通过 http://localhost:3000 打开页面</span></div>';
+                    dropdown.classList.add('visible');
+                }
+            }
+        }
+
+        function normalizeSearchText(text) {
+            return String(text || '')
+                .toLowerCase()
+                .replace(/[\s\-_/\\.·()（）]+/g, '')
+                .trim();
+        }
+
+        function isFuzzySequenceMatch(target, query) {
+            if (!query) return false;
+
+            var targetIndex = 0;
+            for (var queryIndex = 0; queryIndex < query.length; queryIndex++) {
+                targetIndex = target.indexOf(query[queryIndex], targetIndex);
+                if (targetIndex === -1) return false;
+                targetIndex++;
+            }
+
+            return true;
+        }
+
+        function getSearchScore(stock, query) {
+            var normalizedQuery = normalizeSearchText(query);
+            var normalizedName = normalizeSearchText(stock.name);
+            var normalizedCode = normalizeSearchText(stock.code);
+            var codeWithoutMarket = normalizedCode.replace(/^(sh|sz|hk|us)/, '');
+
+            if (!normalizedQuery) return 0;
+            if (normalizedCode === normalizedQuery || codeWithoutMarket === normalizedQuery) return 100;
+            if (normalizedName === normalizedQuery) return 95;
+            if (normalizedName.startsWith(normalizedQuery)) return 85;
+            if (normalizedCode.indexOf(normalizedQuery) !== -1 || codeWithoutMarket.indexOf(normalizedQuery) !== -1) return 80;
+            if (normalizedName.indexOf(normalizedQuery) !== -1) return 70;
+            if (isFuzzySequenceMatch(normalizedName, normalizedQuery)) return 55;
+            if (isFuzzySequenceMatch(normalizedCode, normalizedQuery)) return 60;
+
+            return 0;
+        }
+
+        function getSearchThreshold(query) {
+            var trimmed = (query || '').trim();
+            if (!trimmed) return -1;
+            var firstChar = trimmed[0];
+            if (/[\u4e00-\u9fa5]/.test(firstChar)) return 2;
+            if (/[0-9]/.test(firstChar)) return 3;
+            if (/[a-zA-Z]/.test(firstChar)) return 2;
+            return 3;
+        }
+
+        function searchStock(query) {
+            var threshold = getSearchThreshold(query);
+            if (!query || threshold < 0 || query.trim().length < threshold) {
+                hideSearchDropdown();
+                currentSearchResults = [];
+                return;
+            }
+
+            if (stockDatabase.length === 0) {
+                currentSearchResults = [];
+                var dropdown = document.getElementById('searchDropdown');
+                dropdown.innerHTML = '<div class="search-empty">股票数据库加载中...</div>';
+                dropdown.classList.add('visible');
+                return;
+            }
+
+            var results = stockDatabase
+                .map(function(stock) { return { stock: stock, score: getSearchScore(stock, query) }; })
+                .filter(function(item) { return item.score > 0; })
+                .sort(function(a, b) { return b.score - a.score || a.stock.name.length - b.stock.name.length; })
+                .map(function(item) { return item.stock; })
+                .slice(0, 10);
+
+            currentSearchResults = results;
+
+            if (results.length > 0) {
+                showSearchResults(results);
+            } else {
+                showSearchEmpty();
+            }
+        }
+
+        function showSearchResults(results) {
+            var dropdown = document.getElementById('searchDropdown');
+            var html = '';
+
+            results.forEach(function(stock, index) {
+                var marketLabel = stock.market === 'sh' ? '上海' : stock.market === 'sz' ? '深圳' : stock.market === 'bj' ? '北京' : stock.market === 'hk' ? '香港' : stock.market === 'us' ? '美股' : stock.market === 'idx' ? '指数' : stock.market === 'etf' ? '基金' : stock.market;
+                html += '<div class="search-item" onclick="selectStock(\'' + stock.code + '\', \'' + stock.name + '\')">' +
+                    '<div class="search-item-left">' +
+                        '<div class="search-item-name">' + stock.name + '</div>' +
+                        '<div class="search-item-code">' + stock.code + '</div>' +
+                    '</div>' +
+                    '<div class="search-item-market">' + marketLabel + '</div>' +
+                '</div>';
+            });
+
+            dropdown.innerHTML = html;
+            dropdown.classList.add('visible');
+        }
+
+        function showSearchEmpty() {
+            var dropdown = document.getElementById('searchDropdown');
+            dropdown.innerHTML = '<div class="search-empty">未找到匹配的股票<br><span style="font-size:12px;color:#999">可直接输入代码添加，如：sh601059</span></div>';
+            dropdown.classList.add('visible');
+        }
+
+        function selectStock(code, name) {
+            if (monitoredStocks.indexOf(code) !== -1) {
+                alert('该股票已在监控列表中！');
+                return;
+            }
+
+            monitoredStocks.push(code);
+            saveStocks();
+            renderTable();
+
+            document.getElementById('stockInput').value = '';
+            hideSearchDropdown();
+
+            updateStockData();
+        }
+
+        function selectFirstResult() {
+            if (currentSearchResults.length > 0) {
+                selectStock(currentSearchResults[0].code, currentSearchResults[0].name);
+            } else {
+                addStockDirect();
+            }
+        }
+
+        function hideSearchDropdown() {
+            var dropdown = document.getElementById('searchDropdown');
+            if (dropdown) {
+                dropdown.classList.remove('visible');
+            }
+        }
+
+        function loadStocks() {
+            var saved = localStorage.getItem('monitoredStocks');
+            if (saved) {
+                monitoredStocks = JSON.parse(saved);
+            }
+        }
+
+        function saveStocks() {
+            localStorage.setItem('monitoredStocks', JSON.stringify(monitoredStocks));
+        }
+
+        async function addStockDirect() {
+            var input = document.getElementById('stockInput');
+            var code = input.value.trim();
+
+            if (!code) {
+                alert('请输入股票代码或名称！');
+                return;
+            }
+
+            if (!isValidStockCode(code)) {
+                var bestMatch = stockDatabase
+                    .map(function(stock) { return { stock: stock, score: getSearchScore(stock, code) }; })
+                    .filter(function(item) { return item.score > 0; })
+                    .sort(function(a, b) { return b.score - a.score || a.stock.name.length - b.stock.name.length; })[0];
+
+                if (bestMatch) {
+                    selectStock(bestMatch.stock.code, bestMatch.stock.name);
+                    return;
+                }
+
+                alert('股票代码格式错误！\n正确格式：sh600519, sz000001, hk00700, bj835185');
+                return;
+            }
+
+            if (monitoredStocks.indexOf(code) !== -1) {
+                alert('该股票已在监控列表中！');
+                return;
+            }
+
+            try {
+                var result = await requestJson('/api/stocks', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ codes: [code] })
+                });
+
+                if (!result.success || !result.data || result.data.length === 0) {
+                    alert('代码 ' + code + ' 无效或暂无数据，请检查代码是否正确');
+                    return;
+                }
+
+                monitoredStocks.push(code);
+                saveStocks();
+                renderTable();
+                input.value = '';
+
+                updateStockData();
+            } catch (error) {
+                alert('验证代码失败：' + error.message);
+            }
+        }
+
+        function isValidStockCode(code) {
+            var pattern = /^(sh|sz|hk|us|bj)[0-9A-Z.]+$/i;
+            return pattern.test(code);
+        }
+
+        function deleteStock(index) {
+            monitoredStocks.splice(index, 1);
+            saveStocks();
+            renderTable();
+        }
+
+        function renderTable() {
+            var tbody = document.getElementById('stockTableBody');
+            var emptyState = document.getElementById('emptyState');
+
+            if (monitoredStocks.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            var html = '';
+            monitoredStocks.forEach(function(code, index) {
+                html += '<tr id="row-' + index + '">' +
+                    '<td>' + (index + 1) + '</td>' +
+                    '<td><span class="stock-code">' + code.toUpperCase() + '</span></td>' +
+                    '<td><span class="stock-name" id="name-' + index + '">加载中...</span></td>' +
+                    '<td><span class="stock-price" id="price-' + index + '">-</span></td>' +
+                    '<td><span id="change-' + index + '">-</span></td>' +
+                    '<td><span id="percent-' + index + '">-</span></td>' +
+                    '<td><span class="stock-volume" id="volume-' + index + '">-</span></td>' +
+                    '<td><span id="turnover-' + index + '">-</span></td>' +
+                    '<td><button class="delete-btn" onclick="deleteStock(' + index + ')">🗑️</button></td>' +
+                '</tr>';
+            });
+            tbody.innerHTML = html;
+
+            updateStockData();
+        }
+
+        async function updateStockData() {
+            if (monitoredStocks.length === 0) return;
+
+            try {
+                var result = await requestJson('/api/stocks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ codes: monitoredStocks })
+                });
+
+                if (result.success) {
+                    updateTableData(result.data);
+                    document.getElementById('updateTime').textContent = 
+                        '最后更新：' + new Date().toLocaleTimeString('zh-CN');
+                } else {
+                    throw new Error(result.error || '未知错误');
+                }
+
+            } catch (error) {
+                console.error('更新数据失败：', error);
+                document.getElementById('updateTime').textContent = 
+                    '更新失败：' + new Date().toLocaleTimeString('zh-CN');
+            }
+        }
+
+        function updateTableData(stocksData) {
+            stocksData.forEach(function(stock, index) {
+                if (!document.getElementById('row-' + index)) return;
+
+                document.getElementById('name-' + index).textContent = stock.name;
+                document.getElementById('price-' + index).textContent = stock.currentPrice.toFixed(2);
+                
+                var changeEl = document.getElementById('change-' + index);
+                var changeVal = stock.change;
+                changeEl.textContent = (changeVal >= 0 ? '+' : '') + changeVal.toFixed(2);
+                changeEl.className = changeVal > 0 ? 'stock-change-up' : changeVal < 0 ? 'stock-change-down' : 'stock-change-flat';
+                
+                var percentEl = document.getElementById('percent-' + index);
+                var percentVal = stock.changePercent;
+                percentEl.textContent = (percentVal >= 0 ? '+' : '') + percentVal.toFixed(2) + '%';
+                percentEl.className = percentVal > 0 ? 'stock-change-up' : percentVal < 0 ? 'stock-change-down' : 'stock-change-flat';
+                
+                document.getElementById('volume-' + index).textContent = formatVolume(stock.volume);
+                document.getElementById('turnover-' + index).textContent = stock.turnoverRate.toFixed(2) + '%';
+            });
+        }
+
+        function formatVolume(volume) {
+            var vol = parseInt(volume);
+            if (isNaN(vol)) return '-';
+            if (vol >= 10000) {
+                return (vol / 10000).toFixed(2) + '万手';
+            }
+            return vol + '手';
+        }
+
+        function startAutoUpdate() {
+            if (updateInterval) {
+                clearInterval(updateInterval);
+            }
+
+            updateInterval = setInterval(function() {
+                updateStockData();
+            }, 3000);
+        }
+
+        window.onbeforeunload = function() {
+            if (updateInterval) {
+                clearInterval(updateInterval);
+            }
+        };
+
+        function loadPageTitle() {
+            var savedTitle = localStorage.getItem('pageTitle');
+            var titleEl = document.getElementById('pageTitle');
+            if (savedTitle && titleEl) {
+                titleEl.textContent = savedTitle;
+            }
+            if (titleEl) {
+                titleEl.addEventListener('blur', savePageTitle);
+                titleEl.addEventListener('paste', onTitlePaste);
+            }
+        }
+
+        function onTitlePaste(e) {
+            e.preventDefault();
+            var text = (e.clipboardData || window.clipboardData).getData('text/plain');
+            document.execCommand('insertText', false, text);
+        }
+
+        function savePageTitle() {
+            var titleEl = document.getElementById('pageTitle');
+            var text = titleEl.innerText.trim();
+            if (text) {
+                localStorage.setItem('pageTitle', text);
+            } else {
+                titleEl.textContent = '📈 实时股票监控表';
+                localStorage.setItem('pageTitle', '📈 实时股票监控表');
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            var dropdown = document.getElementById('searchDropdown');
+            var inputWrapper = document.querySelector('.input-group');
+            
+            if (dropdown && inputWrapper && !inputWrapper.contains(event.target)) {
+                hideSearchDropdown();
+            }
+        });
+    </script>
+</body>
+</html>

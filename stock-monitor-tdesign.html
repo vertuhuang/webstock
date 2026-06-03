@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实时股票监控 - TDesign 风格</title>
+    <style>
+        /* ============================================
+           TDesign 设计 Token - 颜色系统
+           ============================================ */
+
+        :root {
+            /* 品牌色 */
+            --td-brand-color: #0052D9;
+            --td-brand-color-hover: #003BA5;
+            --td-brand-color-active: #00264D;
+            --td-brand-color-light: #ECF2FE;
+
+            /* 文本颜色 */
+            --td-text-color-primary: rgba(0, 0, 0, 0.9);
+            --td-text-color-secondary: rgba(0, 0, 0, 0.6);
+            --td-text-color-placeholder: rgba(0, 0, 0, 0.4);
+            --td-text-color-disabled: rgba(0, 0, 0, 0.26);
+            --td-text-color-white: rgba(255, 255, 255, 0.9);
+
+            /* 背景颜色 */
+            --td-bg-color-page: #F5F6F7;
+            --td-bg-color-container: #FFFFFF;
+            --td-bg-color-container-hover: #F6F6F6;
+            --td-bg-color-container-active: #E6E9ED;
+
+            /* 边框颜色 */
+            --td-border-level-1-color: #E7E7E7;
+            --td-border-level-2-color: #DCDCDC;
+            --td-border-level-3-color: #C9C9C9;
+
+            /* 阴影 */
+            --td-shadow-1: 0 1px 4px rgba(0, 0, 0, 0.08);
+            --td-shadow-2: 0 2px 12px rgba(0, 0, 0, 0.12);
+            --td-shadow-3: 0 8px 24px rgba(0, 0, 0, 0.16);
+
+            /* 圆角 */
+            --td-radius-small: 2px;
+            --td-radius-medium: 3px;
+            --td-radius-large: 6px;
+            --td-radius-extraLarge: 9px;
+            --td-radius-round: 999px;
+
+            /* 字体大小 */
+            --td-font-size-body-small: 12px;
+            --td-font-size-body-medium: 13px;
+            --td-font-size-body-large: 14px;
+            --td-font-size-title-small: 16px;
+            --td-font-size-title-medium: 18px;
+            --td-font-size-title-large: 20px;
+            --td-font-size-headline-small: 24px;
+            --td-font-size-headline-medium: 28px;
+            --td-font-size-display-medium: 36px;
+
+            /* 字体粗细 */
+            --td-font-weight-normal: 400;
+            --td-font-weight-medium: 500;
+            --td-font-weight-bold: 700;
+
+            /* 行高 */
+            --td-line-height-body-small: 20px;
+            --td-line-height-body-medium: 22px;
+            --td-line-height-body-large: 24px;
+            --td-line-height-title-small: 24px;
+            --td-line-height-title-medium: 26px;
+            --td-line-height-title-large: 28px;
+
+            /* 状态色 - 涨 */
+            --td-success-color: #2BA471;
+            --td-success-color-light: #E8F8F0;
+            --td-success-color-hover: #009444;
+
+            /* 状态色 - 跌 */
+            --td-error-color: #D54941;
+            --td-error-color-light: #FDECEC;
+            --td-error-color-hover: #B72B24;
+
+            /* 状态色 - 平 */
+            --td-warning-color: #E37318;
+            --td-warning-color-light: #FEF3E6;
+
+            /* 表格头部背景 */
+            --td-table-header-bg: #FAFBFC;
+            --td-table-header-text: var(--td-text-color-secondary);
+
+            /* 过渡动画 */
+            --td-anim-time-base: 0.2s;
+            --td-anim-time-slow: 0.3s;
+        }
+
+        /* ============================================
+           全局样式重置
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+            background: var(--td-bg-color-page);
+            color: var(--td-text-color-primary);
+            font-size: var(--td-font-size-body-large);
+            line-height: var(--td-line-height-body-large);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ============================================
+           主容器 - TDesign 卡片风格
+           ============================================ */
+        .app-container {
+            max-width: 1200px;
+            margin: 32px auto;
+            padding: 0 24px;
+        }
+
+        .main-card {
+            background: var(--td-bg-color-container);
+            border-radius: var(--td-radius-large);
+            box-shadow: var(--td-shadow-2);
+            overflow: hidden;
+        }
+
+        /* ============================================
+           头部区域
+           ============================================ */
+        .header {
+            padding: 32px 40px 24px;
+            border-bottom: 1px solid var(--td-border-level-1-color);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .page-title {
+            font-size: var(--td-font-size-headline-small);
+            font-weight: var(--td-font-weight-bold);
+            color: var(--td-text-color-primary);
+            outline: none;
+            border: 1px solid transparent;
+            border-radius: var(--td-radius-medium);
+            padding: 4px 8px;
+            margin: -4px -8px;
+            transition: all var(--td-anim-time-base) ease;
+            display: inline-block;
+            min-width: 200px;
+        }
+
+        .page-title:hover {
+            border-color: var(--td-border-level-2-color);
+        }
+
+        .page-title:focus {
+            border-color: var(--td-brand-color);
+            background: var(--td-bg-color-container);
+            box-shadow: 0 0 0 2px rgba(0, 82, 217, 0.1);
+        }
+
+        .page-title:empty::before {
+            content: '点击输入标题';
+            color: var(--td-text-color-placeholder);
+        }
+
+        .update-time {
+            font-size: var(--td-font-size-body-small);
+            color: var(--td-text-color-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .update-time::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--td-success-color);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .update-time.error::before {
+            background: var(--td-error-color);
+        }
+
+        /* ============================================
+           添加股票区域 - TDesign 输入组风格
+           ============================================ */
+        .add-stock-section {
+            padding: 24px 40px;
+            border-bottom: 1px solid var(--td-border-level-1-color);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: var(--td-font-size-title-small);
+            font-weight: var(--td-font-weight-medium);
+            color: var(--td-text-color-primary);
+        }
+
+        .section-icon {
+            font-size: 18px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid var(--td-border-level-2-color);
+            border-radius: var(--td-radius-medium);
+            font-size: var(--td-font-size-body-large);
+            color: var(--td-text-color-primary);
+            background: var(--td-bg-color-container);
+            transition: all var(--td-anim-time-base) ease;
+            outline: none;
+            height: 40px;
+            font-family: inherit;
+        }
+
+        .input-field:hover {
+            border-color: var(--td-border-level-3-color);
+        }
+
+        .input-field:focus {
+            border-color: var(--td-brand-color);
+            box-shadow: 0 0 0 2px rgba(0, 82, 217, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: var(--td-text-color-placeholder);
+        }
+
+        .btn-primary {
+            padding: 10px 24px;
+            background: var(--td-brand-color);
+            color: var(--td-text-color-white);
+            border: none;
+            border-radius: var(--td-radius-medium);
+            cursor: pointer;
+            font-size: var(--td-font-size-body-large);
+            font-weight: var(--td-font-weight-medium);
+            transition: all var(--td-anim-time-base) ease;
+            height: 40px;
+            white-space: nowrap;
+            font-family: inherit;
+        }
+
+        .btn-primary:hover {
+            background: var(--td-brand-color-hover);
+        }
+
+        .btn-primary:active {
+            background: var(--td-brand-color-active);
+        }
+
+        .hint {
+            font-size: var(--td-font-size-body-small);
+            color: var(--td-text-color-secondary);
+            margin-top: 8px;
+            line-height: var(--td-line-height-body-small);
+        }
+
+        /* ============================================
+           搜索下拉列表 - TDesign Select 风格
+           ============================================ */
+        .search-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: var(--td-bg-color-container);
+            border: 1px solid var(--td-border-level-2-color);
+            border-radius: var(--td-radius-medium);
+            box-shadow: var(--td-shadow-3);
+            max-height: 320px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .search-dropdown.visible {
+            display: block;
+            animation: slideDown var(--td-anim-time-base) ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .search-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--td-border-level-1-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background var(--td-anim-time-base) ease;
+        }
+
+        .search-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-item:hover {
+            background: var(--td-bg-color-container-hover);
+        }
+
+        .search-item-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .search-item-name {
+            font-weight: var(--td-font-weight-medium);
+            color: var(--td-text-color-primary);
+            font-size: var(--td-font-size-body-large);
+        }
+
+        .search-item-code {
+            color: var(--td-text-color-secondary);
+            font-size: var(--td-font-size-body-small);
+            font-family: "SF Mono", "Fira Code", monospace;
+        }
+
+        .search-item-market {
+            font-size: var(--td-font-size-body-small);
+            color: var(--td-text-color-secondary);
+            padding: 2px 8px;
+            background: var(--td-bg-color-container-hover);
+            border-radius: var(--td-radius-round);
+        }
+
+        .search-empty {
+            padding: 32px 16px;
+            text-align: center;
+            color: var(--td-text-color-secondary);
+            font-size: var(--td-font-size-body-medium);
+        }
+
+        .search-empty .sub-text {
+            font-size: var(--td-font-size-body-small);
+            color: var(--td-text-color-placeholder);
+            margin-top: 4px;
+        }
+
+        /* ============================================
+           股票表格 - TDesign Table 风格
+           ============================================ */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .stock-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .stock-table thead {
+            background: var(--td-table-header-bg);
+        }
+
+        .stock-table th {
+            padding: 14px 16px;
+            text-align: left;
+            font-weight: var(--td-font-weight-medium);
+            font-size: var(--td-font-size-body-small);
+            color: var(--td-table-header-text);
+            border-bottom: 1px solid var(--td-border-level-1-color);
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stock-table tbody tr {
+            transition: background var(--td-anim-time-base) ease;
+            border-bottom: 1px solid var(--td-border-level-1-color);
+        }
+
+        .stock-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .stock-table tbody tr:hover {
+            background: var(--td-bg-color-container-hover);
+        }
+
+        .stock-table td {
+            padding: 16px;
+            font-size: var(--td-font-size-body-medium);
+            color: var(--td-text-color-primary);
+            white-space: nowrap;
+        }
+
+        /* 股票代码样式 */
+        .stock-code {
+            font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+            font-size: var(--td-font-size-body-small);
+            color: var(--td-text-color-secondary);
+            background: var(--td-bg-color-container-hover);
+            padding: 2px 8px;
+            border-radius: var(--td-radius-small);
+            letter-spacing: 0.5px;
+        }
+
+        /* 股票名称样式 */
+        .stock-name {
+            font-weight: var(--td-font-weight-medium);
+            color: var(--td-text-color-primary);
+        }
+
+        /* 价格样式 */
+        .stock-price {
+            font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+            font-weight: var(--td-font-weight-medium);
+            font-size: var(--td-font-size-body-large);
+        }
+
+        /* 涨跌额/涨跌幅样式 */
+        .stock-change-up {
+            color: var(--td-error-color);
+            font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+        }
+
+        .stock-change-down {
+            color: var(--td-success-color);
+            font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+        }
+
+        .stock-change-flat {
+            color: var(--td-text-color-secondary);
+            font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+        }
+
+        /* 成交量样式 */
+        .stock-volume {
+            font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+            color: var(--td-text-color-secondary);
+            font-size: var(--td-font-size-body-small);
+        }
+
+        /* 删除按钮 - TDesign Button 风格 */
+        .delete-btn {
+            padding: 6px 12px;
+            background: transparent;
+            color: var(--td-text-color-secondary);
+            border: 1px solid var(--td-border-level-2-color);
+            border-radius: var(--td-radius-medium);
+            cursor: pointer;
+            font-size: var(--td-font-size-body-small);
+            transition: all var(--td-anim-time-base) ease;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: inherit;
+        }
+
+        .delete-btn:hover {
+            background: var(--td-error-color-light);
+            color: var(--td-error-color);
+            border-color: var(--td-error-color);
+        }
+
+        .delete-btn:active {
+            background: var(--td-error-color);
+            color: var(--td-text-color-white);
+        }
+
+        /* ============================================
+           空状态 - TDesign Empty 风格
+           ============================================ */
+        .empty-state {
+            padding: 80px 40px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.6;
+        }
+
+        .empty-title {
+            font-size: var(--td-font-size-title-medium);
+            color: var(--td-text-color-secondary);
+            margin-bottom: 8px;
+        }
+
+        .empty-desc {
+            font-size: var(--td-font-size-body-medium);
+            color: var(--td-text-color-placeholder);
+        }
+
+        /* ============================================
+           加载状态
+           ============================================ */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--td-text-color-secondary);
+            font-size: var(--td-font-size-body-medium);
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--td-brand-color);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ============================================
+           响应式设计
+           ============================================ */
+        @media (max-width: 768px) {
+            .app-container {
+                margin: 16px auto;
+                padding: 0 16px;
+            }
+
+            .header {
+                padding: 24px 20px 16px;
+            }
+
+            .page-title {
+                font-size: var(--td-font-size-title-large);
+            }
+
+            .add-stock-section {
+                padding: 16px 20px;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .stock-table th,
+            .stock-table td {
+                padding: 12px 8px;
+                font-size: var(--td-font-size-body-small);
+            }
+        }
+
+        /* ============================================
+           滚动条美化
+           ============================================ */
+        .search-dropdown::-webkit-scrollbar,
+        .table-container::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .search-dropdown::-webkit-scrollbar-track,
+        .table-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .search-dropdown::-webkit-scrollbar-thumb,
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--td-border-level-2-color);
+            border-radius: 3px;
+        }
+
+        .search-dropdown::-webkit-scrollbar-thumb:hover,
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: var(--td-border-level-3-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="main-card">
+            <!-- 标题区域 -->
+            <div class="header">
+                <div class="header-top">
+                    <h1 id="pageTitle" class="page-title" contenteditable="true">📈 实时股票监控</h1>
+                    <div class="update-time" id="updateTime">最后更新：-</div>
+                </div>
+            </div>
+
+            <!-- 添加股票区域 -->
+            <div class="add-stock-section">
+                <div class="section-header">
+                    <span class="section-icon">➕</span>
+                    <h3 class="section-title">添加监控标的</h3>
+                </div>
+                <div class="input-wrapper">
+                    <div class="input-group">
+                        <input 
+                            type="text" 
+                            id="stockInput" 
+                            class="input-field"
+                            placeholder="输入股票代码、名称或简称（如：sh600519、茅台、中移）"
+                            oninput="searchStock(this.value)"
+                            onkeypress="if(event.key==='Enter') selectFirstResult()"
+                        >
+                        <button class="btn-primary" onclick="selectFirstResult()">添加</button>
+                    </div>
+                    <!-- 搜索结果下拉列表 -->
+                    <div class="search-dropdown" id="searchDropdown"></div>
+                </div>
+                <div class="hint">
+                    提示：可输入股票代码（sh600519）、股票名称（茅台）或名称简称（中移、招行）进行搜索
+                </div>
+            </div>
+
+            <!-- 股票表格 -->
+            <div class="table-container">
+                <table class="stock-table" id="stockTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px; text-align: center;">序号</th>
+                            <th style="width: 120px;">代码</th>
+                            <th style="width: 140px;">名称</th>
+                            <th style="width: 120px; text-align: right;">当前价</th>
+                            <th style="width: 120px; text-align: right;">涨跌额</th>
+                            <th style="width: 120px; text-align: right;">涨跌幅</th>
+                            <th style="width: 140px; text-align: right;">成交量</th>
+                            <th style="width: 120px; text-align: right;">换手率</th>
+                            <th style="width: 100px; text-align: center;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stockTableBody">
+                        <!-- 动态内容 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 空状态 -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-icon">📊</div>
+                <div class="empty-title">暂无监控标的</div>
+                <div class="empty-desc">请在上方输入框中添加股票代码或名称</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let monitoredStocks = [];
+        let updateInterval = null;
+        let stockDatabase = []; // 股票数据库
+        let currentSearchResults = []; // 当前搜索结果
+
+        // 页面加载时初始化
+        window.onload = function() {
+            loadPageTitle(); // 加载自定义标题
+            loadStockDatabase(); // 加载股票数据库
+            loadStocks();
+            renderTable();
+            startAutoUpdate();
+        };
+
+        function requestJson(url, options = {}) {
+            if (typeof window.fetch === 'function') {
+                return fetch(url, options).then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                });
+            }
+
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open(options.method || 'GET', url, true);
+
+                const headers = options.headers || {};
+                Object.keys(headers).forEach(key => {
+                    xhr.setRequestHeader(key, headers[key]);
+                });
+
+                xhr.onload = function() {
+                    if (xhr.status < 200 || xhr.status >= 300) {
+                        reject(new Error(`HTTP error! status: ${xhr.status}`));
+                        return;
+                    }
+
+                    try {
+                        resolve(JSON.parse(xhr.responseText));
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+
+                xhr.onerror = function() {
+                    reject(new Error('网络请求失败'));
+                };
+
+                xhr.send(options.body || null);
+            });
+        }
+
+        // 加载股票数据库
+        async function loadStockDatabase() {
+            try {
+                stockDatabase = await requestJson('/stock-database.json');
+                console.log('股票数据库加载成功，共', stockDatabase.length, '只股票');
+
+                const input = document.getElementById('stockInput');
+                if (input && input.value.trim()) {
+                    searchStock(input.value);
+                }
+            } catch (error) {
+                console.error('加载股票数据库失败：', error);
+                const dropdown = document.getElementById('searchDropdown');
+                if (dropdown) {
+                    dropdown.innerHTML = '<div class="search-empty">股票数据库加载失败<br><span class="sub-text">请确认通过 http://localhost:3000 打开页面</span></div>';
+                    dropdown.classList.add('visible');
+                }
+            }
+        }
+
+        // 归一化搜索文本，降低大小写、空格、连接符等差异对匹配的影响
+        function normalizeSearchText(text) {
+            return String(text || '')
+                .toLowerCase()
+                .replace(/[\s\-_/\\.·()（）]+/g, '')
+                .trim();
+        }
+
+        // 判断 query 的每个字符是否按顺序出现在 target 中，支持"中移"匹配"中国移动"
+        function isFuzzySequenceMatch(target, query) {
+            if (!query) return false;
+
+            let targetIndex = 0;
+            for (let queryIndex = 0; queryIndex < query.length; queryIndex++) {
+                targetIndex = target.indexOf(query[queryIndex], targetIndex);
+                if (targetIndex === -1) return false;
+                targetIndex++;
+            }
+
+            return true;
+        }
+
+        function getSearchScore(stock, query) {
+            const normalizedQuery = normalizeSearchText(query);
+            const normalizedName = normalizeSearchText(stock.name);
+            const normalizedCode = normalizeSearchText(stock.code);
+            const codeWithoutMarket = normalizedCode.replace(/^(sh|sz|hk|us)/, '');
+
+            if (!normalizedQuery) return 0;
+            if (normalizedCode === normalizedQuery || codeWithoutMarket === normalizedQuery) return 100;
+            if (normalizedName === normalizedQuery) return 95;
+            if (normalizedName.startsWith(normalizedQuery)) return 85;
+            if (normalizedCode.includes(normalizedQuery) || codeWithoutMarket.includes(normalizedQuery)) return 80;
+            if (normalizedName.includes(normalizedQuery)) return 70;
+            if (isFuzzySequenceMatch(normalizedName, normalizedQuery)) return 55;
+            if (isFuzzySequenceMatch(normalizedCode, normalizedQuery)) return 60;
+
+            return 0;
+        }
+
+        // 根据输入内容类型，判断触发搜索的最小字符数
+        // 首字为中文 → 2个汉字后触发；首字为数字 → 3个数字后触发；首字为英文 → 2个英文字符后触发
+        function getSearchThreshold(query) {
+            const trimmed = (query || '').trim();
+            if (!trimmed) return -1;
+            const firstChar = trimmed[0];
+            if (/[\u4e00-\u9fa5]/.test(firstChar)) return 2;   // 中文开头 → 2字触发
+            if (/[0-9]/.test(firstChar)) return 3;                // 数字开头 → 3字触发
+            if (/[a-zA-Z]/.test(firstChar)) return 2;             // 英文开头 → 2字触发
+            return 3; // 其他默认3字
+        }
+
+        // 搜索股票（按名称或代码模糊匹配）
+        function searchStock(query) {
+            const threshold = getSearchThreshold(query);
+            if (!query || threshold < 0 || query.trim().length < threshold) {
+                hideSearchDropdown();
+                currentSearchResults = [];
+                return;
+            }
+
+            if (stockDatabase.length === 0) {
+                currentSearchResults = [];
+                const dropdown = document.getElementById('searchDropdown');
+                dropdown.innerHTML = '<div class="search-empty">股票数据库加载中...</div>';
+                dropdown.classList.add('visible');
+                return;
+            }
+
+            // 在数据库中搜索（名称或代码匹配）
+            const results = stockDatabase
+                .map(stock => ({ stock, score: getSearchScore(stock, query) }))
+                .filter(item => item.score > 0)
+                .sort((a, b) => b.score - a.score || a.stock.name.length - b.stock.name.length)
+                .map(item => item.stock)
+                .slice(0, 10); // 最多显示10条结果
+
+            currentSearchResults = results;
+
+            if (results.length > 0) {
+                showSearchResults(results);
+            } else {
+                showSearchEmpty();
+            }
+        }
+
+        // 显示搜索结果下拉列表
+        function showSearchResults(results) {
+            const dropdown = document.getElementById('searchDropdown');
+            let html = '';
+
+            results.forEach((stock, index) => {
+                const marketLabel = stock.market === 'sh' ? '上海' : stock.market === 'sz' ? '深圳' : stock.market === 'bj' ? '北京' : stock.market === 'hk' ? '香港' : stock.market === 'us' ? '美股' : stock.market === 'idx' ? '指数' : stock.market === 'etf' ? '基金' : stock.market;
+                html += `
+                    <div class="search-item" onclick="selectStock('${stock.code}', '${stock.name}')">
+                        <div class="search-item-left">
+                            <div class="search-item-name">${stock.name}</div>
+                            <div class="search-item-code">${stock.code}</div>
+                        </div>
+                        <div class="search-item-market">${marketLabel}</div>
+                    </div>
+                `;
+            });
+
+            dropdown.innerHTML = html;
+            dropdown.classList.add('visible');
+        }
+
+        // 显示无结果
+        function showSearchEmpty() {
+            const dropdown = document.getElementById('searchDropdown');
+            dropdown.innerHTML = '<div class="search-empty">未找到匹配的股票<br><span class="sub-text">可直接输入代码添加，如：sh601059</span></div>';
+            dropdown.classList.add('visible');
+        }
+
+        // 选择股票（从搜索结果中）
+        function selectStock(code, name) {
+            // 检查是否已存在
+            if (monitoredStocks.includes(code)) {
+                alert('该股票已在监控列表中！');
+                return;
+            }
+
+            // 添加到列表
+            monitoredStocks.push(code);
+            saveStocks();
+            renderTable();
+
+            // 清空输入框和搜索结果
+            document.getElementById('stockInput').value = '';
+            hideSearchDropdown();
+
+            // 立即更新一次数据
+            updateStockData();
+        }
+
+        // 选择第一个搜索结果（按Enter时）
+        function selectFirstResult() {
+            if (currentSearchResults.length > 0) {
+                selectStock(currentSearchResults[0].code, currentSearchResults[0].name);
+            } else {
+                // 如果没有搜索结果，尝试直接添加（兼容原有逻辑）
+                addStockDirect();
+            }
+        }
+
+        // 隐藏搜索下拉列表
+        function hideSearchDropdown() {
+            const dropdown = document.getElementById('searchDropdown');
+            if (dropdown) {
+                dropdown.classList.remove('visible');
+            }
+        }
+
+        // 从LocalStorage加载监控列表
+        function loadStocks() {
+            const saved = localStorage.getItem('monitoredStocks');
+            if (saved) {
+                monitoredStocks = JSON.parse(saved);
+            }
+        }
+
+        // 保存监控列表到LocalStorage
+        function saveStocks() {
+            localStorage.setItem('monitoredStocks', JSON.stringify(monitoredStocks));
+        }
+
+        // 添加股票（直接输入代码）
+        async function addStockDirect() {
+            const input = document.getElementById('stockInput');
+            const code = input.value.trim();
+
+            if (!code) {
+                alert('请输入股票代码或名称！');
+                return;
+            }
+
+            // 验证代码格式
+            if (!isValidStockCode(code)) {
+                const bestMatch = stockDatabase
+                    .map(stock => ({ stock, score: getSearchScore(stock, code) }))
+                    .filter(item => item.score > 0)
+                    .sort((a, b) => b.score - a.score || a.stock.name.length - b.stock.name.length)[0];
+
+                if (bestMatch) {
+                    selectStock(bestMatch.stock.code, bestMatch.stock.name);
+                    return;
+                }
+
+                alert('股票代码格式错误！\n正确格式：sh600519, sz000001, hk00700, bj835185');
+                return;
+            }
+
+            // 检查是否已存在
+            if (monitoredStocks.includes(code)) {
+                alert('该股票已在监控列表中！');
+                return;
+            }
+
+            // 调用API验证代码是否有效
+            try {
+                const result = await requestJson('/api/stocks', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ codes: [code] })
+                });
+
+                if (!result.success || !result.data || result.data.length === 0) {
+                    alert(`代码 ${code} 无效或暂无数据，请检查代码是否正确`);
+                    return;
+                }
+
+                // 有效，添加到列表
+                monitoredStocks.push(code);
+                saveStocks();
+                renderTable();
+                input.value = '';
+
+                // 立即更新一次数据
+                updateStockData();
+            } catch (error) {
+                alert(`验证代码失败：${error.message}`);
+            }
+        }
+
+        // 验证股票代码格式
+        function isValidStockCode(code) {
+            const pattern = /^(sh|sz|hk|us|bj)[0-9A-Z.]+$/i;
+            return pattern.test(code);
+        }
+
+        // 删除股票
+        function deleteStock(index) {
+            monitoredStocks.splice(index, 1);
+            saveStocks();
+            renderTable();
+        }
+
+        // 渲染表格
+        function renderTable() {
+            const tbody = document.getElementById('stockTableBody');
+            const emptyState = document.getElementById('emptyState');
+            const table = document.getElementById('stockTable');
+
+            if (monitoredStocks.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                table.style.display = 'none';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            table.style.display = 'table';
+
+            // 创建占位行（数据将通过AJAX更新）
+            let html = '';
+            monitoredStocks.forEach((code, index) => {
+                html += `
+                    <tr id="row-${index}">
+                        <td style="text-align: center; color: var(--td-text-color-secondary); font-size: var(--td-font-size-body-small);">${index + 1}</td>
+                        <td><span class="stock-code">${code.toUpperCase()}</span></td>
+                        <td><span class="stock-name" id="name-${index}">加载中...</span></td>
+                        <td style="text-align: right;"><span class="stock-price" id="price-${index}">-</span></td>
+                        <td style="text-align: right;"><span id="change-${index}">-</span></td>
+                        <td style="text-align: right;"><span id="percent-${index}">-</span></td>
+                        <td style="text-align: right;"><span class="stock-volume" id="volume-${index}">-</span></td>
+                        <td style="text-align: right;"><span id="turnover-${index}">-</span></td>
+                        <td style="text-align: center;"><button class="delete-btn" onclick="deleteStock(${index})">删除</button></td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+
+            // 立即更新数据
+            updateStockData();
+        }
+
+        // 更新股票数据
+        async function updateStockData() {
+            if (monitoredStocks.length === 0) return;
+
+            try {
+                // 调用后端API
+                const result = await requestJson('/api/stocks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ codes: monitoredStocks })
+                });
+
+                if (result.success) {
+                    // 更新表格数据
+                    updateTableData(result.data);
+
+                    // 更新时间
+                    const now = new Date();
+                    const timeStr = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    const updateTimeEl = document.getElementById('updateTime');
+                    updateTimeEl.textContent = `最后更新：${timeStr}`;
+                    updateTimeEl.classList.remove('error');
+                } else {
+                    throw new Error(result.error || '未知错误');
+                }
+
+            } catch (error) {
+                console.error('更新数据失败：', error);
+                const updateTimeEl = document.getElementById('updateTime');
+                updateTimeEl.textContent = `更新失败：${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+                updateTimeEl.classList.add('error');
+            }
+        }
+
+        // 更新表格数据
+        function updateTableData(stocksData) {
+            stocksData.forEach((stock, index) => {
+                if (!document.getElementById(`row-${index}`)) return;
+
+                // 更新各字段
+                document.getElementById(`name-${index}`).textContent = stock.name;
+                
+                const priceEl = document.getElementById(`price-${index}`);
+                priceEl.textContent = stock.currentPrice.toFixed(2);
+                
+                const changeEl = document.getElementById(`change-${index}`);
+                const changeVal = stock.change;
+                changeEl.textContent = (changeVal >= 0 ? '+' : '') + changeVal.toFixed(2);
+                changeEl.className = changeVal > 0 ? 'stock-change-up' : changeVal < 0 ? 'stock-change-down' : 'stock-change-flat';
+                
+                const percentEl = document.getElementById(`percent-${index}`);
+                const percentVal = stock.changePercent;
+                percentEl.textContent = (percentVal >= 0 ? '+' : '') + percentVal.toFixed(2) + '%';
+                percentEl.className = percentVal > 0 ? 'stock-change-up' : percentVal < 0 ? 'stock-change-down' : 'stock-change-flat';
+                
+                document.getElementById(`volume-${index}`).textContent = formatVolume(stock.volume);
+                document.getElementById(`turnover-${index}`).textContent = stock.turnoverRate.toFixed(2) + '%';
+            });
+        }
+
+        // 格式化成交量（手 -> 万手）
+        function formatVolume(volume) {
+            const vol = parseInt(volume);
+            if (isNaN(vol)) return '-';
+            if (vol >= 10000) {
+                return (vol / 10000).toFixed(2) + '万手';
+            }
+            return vol + '手';
+        }
+
+        // 启动自动更新
+        function startAutoUpdate() {
+            if (updateInterval) {
+                clearInterval(updateInterval);
+            }
+
+            // 每3秒更新一次
+            updateInterval = setInterval(() => {
+                updateStockData();
+            }, 3000);
+        }
+
+        // 页面卸载时清除定时器
+        window.onbeforeunload = function() {
+            if (updateInterval) {
+                clearInterval(updateInterval);
+            }
+        };
+
+        // 加载页面自定义标题
+        function loadPageTitle() {
+            const savedTitle = localStorage.getItem('pageTitle');
+            const titleEl = document.getElementById('pageTitle');
+            if (savedTitle && titleEl) {
+                titleEl.textContent = savedTitle;
+            }
+            // 绑定失焦保存事件和粘贴事件
+            if (titleEl) {
+                titleEl.addEventListener('blur', savePageTitle);
+                titleEl.addEventListener('paste', onTitlePaste);
+            }
+        }
+
+        // 粘贴时去除格式，只保留纯文本
+        function onTitlePaste(e) {
+            e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+            document.execCommand('insertText', false, text);
+        }
+
+        // 保存页面自定义标题
+        function savePageTitle() {
+            const titleEl = document.getElementById('pageTitle');
+            const text = titleEl.innerText.trim();
+            if (text) {
+                localStorage.setItem('pageTitle', text);
+            } else {
+                // 如果清空了，恢复默认标题
+                titleEl.textContent = '📈 实时股票监控';
+                localStorage.setItem('pageTitle', '📈 实时股票监控');
+            }
+        }
+
+        // 点击页面其他地方时隐藏下拉列表
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('searchDropdown');
+            const inputWrapper = document.querySelector('.input-wrapper');
+            
+            if (dropdown && inputWrapper && !inputWrapper.contains(event.target)) {
+                hideSearchDropdown();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1732 @@
+[
+  {
+    "code": "hk00001",
+    "name": "长和",
+    "market": "hk"
+  },
+  {
+    "code": "hk00002",
+    "name": "中电控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk00003",
+    "name": "香港中华煤气",
+    "market": "hk"
+  },
+  {
+    "code": "hk00005",
+    "name": "汇丰控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk00006",
+    "name": "电能实业",
+    "market": "hk"
+  },
+  {
+    "code": "hk00011",
+    "name": "恒生银行",
+    "market": "hk"
+  },
+  {
+    "code": "hk00012",
+    "name": "恒基兆业地产",
+    "market": "hk"
+  },
+  {
+    "code": "hk00016",
+    "name": "新鸿基地产",
+    "market": "hk"
+  },
+  {
+    "code": "hk00017",
+    "name": "新世界发展",
+    "market": "hk"
+  },
+  {
+    "code": "hk00019",
+    "name": "太古股份公司A",
+    "market": "hk"
+  },
+  {
+    "code": "hk00023",
+    "name": "东亚银行",
+    "market": "hk"
+  },
+  {
+    "code": "hk00027",
+    "name": "银河娱乐",
+    "market": "hk"
+  },
+  {
+    "code": "hk00038",
+    "name": "第一拖拉机股份",
+    "market": "hk"
+  },
+  {
+    "code": "hk00041",
+    "name": "鹰君",
+    "market": "hk"
+  },
+  {
+    "code": "hk00066",
+    "name": "港铁公司",
+    "market": "hk"
+  },
+  {
+    "code": "hk00083",
+    "name": "信和置业",
+    "market": "hk"
+  },
+  {
+    "code": "hk00086",
+    "name": "新鸿基公司",
+    "market": "hk"
+  },
+  {
+    "code": "hk00088",
+    "name": "大新金融",
+    "market": "hk"
+  },
+  {
+    "code": "hk00089",
+    "name": "大生银行",
+    "market": "hk"
+  },
+  {
+    "code": "hk00101",
+    "name": "恒隆地产",
+    "market": "hk"
+  },
+  {
+    "code": "hk00116",
+    "name": "周生生",
+    "market": "hk"
+  },
+  {
+    "code": "hk00119",
+    "name": "保利置业集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk00123",
+    "name": "越秀地产",
+    "market": "hk"
+  },
+  {
+    "code": "hk00127",
+    "name": "华人置业",
+    "market": "hk"
+  },
+  {
+    "code": "hk00135",
+    "name": "昆仑能源",
+    "market": "hk"
+  },
+  {
+    "code": "hk00144",
+    "name": "招商局港口",
+    "market": "hk"
+  },
+  {
+    "code": "hk00150",
+    "name": "中国光大控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk00151",
+    "name": "中国旺旺",
+    "market": "hk"
+  },
+  {
+    "code": "hk00165",
+    "name": "中国光大国际",
+    "market": "hk"
+  },
+  {
+    "code": "hk00168",
+    "name": "青岛啤酒股份",
+    "market": "hk"
+  },
+  {
+    "code": "hk00175",
+    "name": "吉利汽车",
+    "market": "hk"
+  },
+  {
+    "code": "hk00200",
+    "name": "新濠国际发展",
+    "market": "hk"
+  },
+  {
+    "code": "hk00215",
+    "name": "和记电讯香港",
+    "market": "hk"
+  },
+  {
+    "code": "hk00220",
+    "name": "统一企业中国",
+    "market": "hk"
+  },
+  {
+    "code": "hk00238",
+    "name": "匹克体育",
+    "market": "hk"
+  },
+  {
+    "code": "hk00241",
+    "name": "阿里健康",
+    "market": "hk"
+  },
+  {
+    "code": "hk00242",
+    "name": "信德集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk00257",
+    "name": "光大环境",
+    "market": "hk"
+  },
+  {
+    "code": "hk00267",
+    "name": "中信股份",
+    "market": "hk"
+  },
+  {
+    "code": "hk00270",
+    "name": "粤海投资",
+    "market": "hk"
+  },
+  {
+    "code": "hk00283",
+    "name": "高银金融",
+    "market": "hk"
+  },
+  {
+    "code": "hk00293",
+    "name": "国泰航空",
+    "market": "hk"
+  },
+  {
+    "code": "hk00303",
+    "name": "VTECH HOLDINGS",
+    "market": "hk"
+  },
+  {
+    "code": "hk00316",
+    "name": "东方海外国际",
+    "market": "hk"
+  },
+  {
+    "code": "hk00317",
+    "name": "广州广船国际股份",
+    "market": "hk"
+  },
+  {
+    "code": "hk00322",
+    "name": "康师傅控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk00323",
+    "name": "马鞍山钢铁股份",
+    "market": "hk"
+  },
+  {
+    "code": "hk00327",
+    "name": "百富环球",
+    "market": "hk"
+  },
+  {
+    "code": "hk00336",
+    "name": "华宝国际",
+    "market": "hk"
+  },
+  {
+    "code": "hk00338",
+    "name": "上海石油化工股份",
+    "market": "hk"
+  },
+  {
+    "code": "hk00347",
+    "name": "鞍钢股份",
+    "market": "hk"
+  },
+  {
+    "code": "hk00352",
+    "name": "大唐发电",
+    "market": "hk"
+  },
+  {
+    "code": "hk00354",
+    "name": "中国软件国际",
+    "market": "hk"
+  },
+  {
+    "code": "hk00358",
+    "name": "江西铜业股份",
+    "market": "hk"
+  },
+  {
+    "code": "hk00368",
+    "name": "中港石油",
+    "market": "hk"
+  },
+  {
+    "code": "hk00370",
+    "name": "国联证券",
+    "market": "hk"
+  },
+  {
+    "code": "hk00371",
+    "name": "北控水务集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk00375",
+    "name": "YUGANG INT",
+    "market": "hk"
+  },
+  {
+    "code": "hk00378",
+    "name": "五龙电动车",
+    "market": "hk"
+  },
+  {
+    "code": "hk00380",
+    "name": "中国电力",
+    "market": "hk"
+  },
+  {
+    "code": "hk00386",
+    "name": "中国石油化工股份",
+    "market": "hk"
+  },
+  {
+    "code": "hk00392",
+    "name": "北京控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk00397",
+    "name": "中国人寿",
+    "market": "hk"
+  },
+  {
+    "code": "hk00398",
+    "name": "东方航空",
+    "market": "hk"
+  },
+  {
+    "code": "hk00400",
+    "name": "科通芯城",
+    "market": "hk"
+  },
+  {
+    "code": "hk00417",
+    "name": "谢瑞麟",
+    "market": "hk"
+  },
+  {
+    "code": "hk00439",
+    "name": "光启科学",
+    "market": "hk"
+  },
+  {
+    "code": "hk00460",
+    "name": "四环医药",
+    "market": "hk"
+  },
+  {
+    "code": "hk00473",
+    "name": "理文造纸",
+    "market": "hk"
+  },
+  {
+    "code": "hk00483",
+    "name": "旭程控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk00489",
+    "name": "东风集团股份",
+    "market": "hk"
+  },
+  {
+    "code": "hk00494",
+    "name": "利丰",
+    "market": "hk"
+  },
+  {
+    "code": "hk00506",
+    "name": "中国食品",
+    "market": "hk"
+  },
+  {
+    "code": "hk00511",
+    "name": "电视广播",
+    "market": "hk"
+  },
+  {
+    "code": "hk00522",
+    "name": "ASM太平洋",
+    "market": "hk"
+  },
+  {
+    "code": "hk00525",
+    "name": "广深铁路股份",
+    "market": "hk"
+  },
+  {
+    "code": "hk00546",
+    "name": "阜丰集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk00548",
+    "name": "深圳高速公路股份",
+    "market": "hk"
+  },
+  {
+    "code": "hk00551",
+    "name": "裕元集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk00552",
+    "name": "中国通信服务",
+    "market": "hk"
+  },
+  {
+    "code": "hk00553",
+    "name": "南京熊猫电子股份",
+    "market": "hk"
+  },
+  {
+    "code": "hk00570",
+    "name": "中国中药",
+    "market": "hk"
+  },
+  {
+    "code": "hk00571",
+    "name": "丰盛控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk00574",
+    "name": "五矿地产",
+    "market": "hk"
+  },
+  {
+    "code": "hk00576",
+    "name": "浙江沪杭甬",
+    "market": "hk"
+  },
+  {
+    "code": "hk00580",
+    "name": "赛晶电力电子",
+    "market": "hk"
+  },
+  {
+    "code": "hk00586",
+    "name": "海螺创业",
+    "market": "hk"
+  },
+  {
+    "code": "hk00587",
+    "name": "海螺水泥",
+    "market": "hk"
+  },
+  {
+    "code": "hk00589",
+    "name": "美兰空港",
+    "market": "hk"
+  },
+  {
+    "code": "hk00590",
+    "name": "六福集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk00593",
+    "name": "星岛",
+    "market": "hk"
+  },
+  {
+    "code": "hk00598",
+    "name": "中国外运",
+    "market": "hk"
+  },
+  {
+    "code": "hk00606",
+    "name": "瑞声科技",
+    "market": "hk"
+  },
+  {
+    "code": "hk00612",
+    "name": "中国投资基金",
+    "market": "hk"
+  },
+  {
+    "code": "hk00636",
+    "name": "KWGN",
+    "market": "hk"
+  },
+  {
+    "code": "hk00639",
+    "name": "首钢资源",
+    "market": "hk"
+  },
+  {
+    "code": "hk00669",
+    "name": "创科实业",
+    "market": "hk"
+  },
+  {
+    "code": "hk00680",
+    "name": "南海控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk00686",
+    "name": "北京能源国际",
+    "market": "hk"
+  },
+  {
+    "code": "hk00688",
+    "name": "中芯国际",
+    "market": "hk"
+  },
+  {
+    "code": "hk00694",
+    "name": "北京首都机场股份",
+    "market": "hk"
+  },
+  {
+    "code": "hk00696",
+    "name": "中国民航信息网络",
+    "market": "hk"
+  },
+  {
+    "code": "hk00698",
+    "name": "通达集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk00700",
+    "name": "腾讯控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk00709",
+    "name": "君实生物",
+    "market": "hk"
+  },
+  {
+    "code": "hk00710",
+    "name": "宝胜国际",
+    "market": "hk"
+  },
+  {
+    "code": "hk00712",
+    "name": "卡森国际",
+    "market": "hk"
+  },
+  {
+    "code": "hk00717",
+    "name": "英皇证券",
+    "market": "hk"
+  },
+  {
+    "code": "hk00718",
+    "name": "太和控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk00725",
+    "name": "恒新光电",
+    "market": "hk"
+  },
+  {
+    "code": "hk00727",
+    "name": "皇冠环球集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk00728",
+    "name": "中国电信",
+    "market": "hk"
+  },
+  {
+    "code": "hk00729",
+    "name": "五龙动力",
+    "market": "hk"
+  },
+  {
+    "code": "hk00732",
+    "name": "信利国际",
+    "market": "hk"
+  },
+  {
+    "code": "hk00737",
+    "name": "湾区联合",
+    "market": "hk"
+  },
+  {
+    "code": "hk00750",
+    "name": "数字王国",
+    "market": "hk"
+  },
+  {
+    "code": "hk00751",
+    "name": "创升控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk00753",
+    "name": "中国国航",
+    "market": "hk"
+  },
+  {
+    "code": "hk00754",
+    "name": "合生元",
+    "market": "hk"
+  },
+  {
+    "code": "hk00757",
+    "name": "阳光100中国",
+    "market": "hk"
+  },
+  {
+    "code": "hk00762",
+    "name": "中国联通",
+    "market": "hk"
+  },
+  {
+    "code": "hk00766",
+    "name": "龙江交通",
+    "market": "hk"
+  },
+  {
+    "code": "hk00772",
+    "name": "阅文集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk00779",
+    "name": "首创置业",
+    "market": "hk"
+  },
+  {
+    "code": "hk00780",
+    "name": "龙光地产",
+    "market": "hk"
+  },
+  {
+    "code": "hk00787",
+    "name": "利标品牌",
+    "market": "hk"
+  },
+  {
+    "code": "hk00793",
+    "name": "卡撒天娇",
+    "market": "hk"
+  },
+  {
+    "code": "hk00803",
+    "name": "昌兴国际",
+    "market": "hk"
+  },
+  {
+    "code": "hk00809",
+    "name": "大成糖业",
+    "market": "hk"
+  },
+  {
+    "code": "hk00811",
+    "name": "新华文轩",
+    "market": "hk"
+  },
+  {
+    "code": "hk00813",
+    "name": "世茂房地产",
+    "market": "hk"
+  },
+  {
+    "code": "hk00815",
+    "name": "中国白银集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk00817",
+    "name": "中国金茂控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk00819",
+    "name": "天能动力",
+    "market": "hk"
+  },
+  {
+    "code": "hk00822",
+    "name": "上海实业控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk00823",
+    "name": "领展房产基金",
+    "market": "hk"
+  },
+  {
+    "code": "hk00835",
+    "name": "上海石油化工股份",
+    "market": "hk"
+  },
+  {
+    "code": "hk00836",
+    "name": "华润电力",
+    "market": "hk"
+  },
+  {
+    "code": "hk00839",
+    "name": "中泛控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk00846",
+    "name": "明发集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk00857",
+    "name": "中国石油股份",
+    "market": "hk"
+  },
+  {
+    "code": "hk00861",
+    "name": "神州控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk00868",
+    "name": "信义能源",
+    "market": "hk"
+  },
+  {
+    "code": "hk00871",
+    "name": "中国宏桥",
+    "market": "hk"
+  },
+  {
+    "code": "hk00880",
+    "name": "澳博控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk00883",
+    "name": "中国海洋石油",
+    "market": "hk"
+  },
+  {
+    "code": "hk00884",
+    "name": "旭辉控股集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk00886",
+    "name": "银基集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk00895",
+    "name": "东江环保",
+    "market": "hk"
+  },
+  {
+    "code": "hk00896",
+    "name": "兴达国际",
+    "market": "hk"
+  },
+  {
+    "code": "hk00898",
+    "name": "中国铝业",
+    "market": "hk"
+  },
+  {
+    "code": "hk00900",
+    "name": "AEON信贷财务",
+    "market": "hk"
+  },
+  {
+    "code": "hk00902",
+    "name": "华能国际电力股份",
+    "market": "hk"
+  },
+  {
+    "code": "hk00911",
+    "name": "恒达科技控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk00914",
+    "name": "安徽海螺水泥",
+    "market": "hk"
+  },
+  {
+    "code": "hk00916",
+    "name": "龙源电力",
+    "market": "hk"
+  },
+  {
+    "code": "hk00921",
+    "name": "海信家电",
+    "market": "hk"
+  },
+  {
+    "code": "hk00939",
+    "name": "建设银行",
+    "market": "hk"
+  },
+  {
+    "code": "hk00941",
+    "name": "中国移动",
+    "market": "hk"
+  },
+  {
+    "code": "hk00951",
+    "name": "超威动力",
+    "market": "hk"
+  },
+  {
+    "code": "hk00960",
+    "name": "龙湖集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk00966",
+    "name": "中国太平",
+    "market": "hk"
+  },
+  {
+    "code": "hk00968",
+    "name": "信义光能",
+    "market": "hk"
+  },
+  {
+    "code": "hk00971",
+    "name": "中国东方教育",
+    "market": "hk"
+  },
+  {
+    "code": "hk00980",
+    "name": "联华超市",
+    "market": "hk"
+  },
+  {
+    "code": "hk00988",
+    "name": "民生银行",
+    "market": "hk"
+  },
+  {
+    "code": "hk00992",
+    "name": "联想集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk00995",
+    "name": "安徽皖通高速公路",
+    "market": "hk"
+  },
+  {
+    "code": "hk00998",
+    "name": "中信银行",
+    "market": "hk"
+  },
+  {
+    "code": "hk01024",
+    "name": "快手-W",
+    "market": "hk"
+  },
+  {
+    "code": "hk01030",
+    "name": "新城发展",
+    "market": "hk"
+  },
+  {
+    "code": "hk01038",
+    "name": "长江基建集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk01044",
+    "name": "恒安国际",
+    "market": "hk"
+  },
+  {
+    "code": "hk01052",
+    "name": "越秀交通基建",
+    "market": "hk"
+  },
+  {
+    "code": "hk01053",
+    "name": "重庆燃气",
+    "market": "hk"
+  },
+  {
+    "code": "hk01055",
+    "name": "中国华融",
+    "market": "hk"
+  },
+  {
+    "code": "hk01056",
+    "name": "中国中药",
+    "market": "hk"
+  },
+  {
+    "code": "hk01070",
+    "name": "TCL多媒体",
+    "market": "hk"
+  },
+  {
+    "code": "hk01072",
+    "name": "东方电气",
+    "market": "hk"
+  },
+  {
+    "code": "hk01093",
+    "name": "石药集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk01109",
+    "name": "华润置地",
+    "market": "hk"
+  },
+  {
+    "code": "hk01113",
+    "name": "长江生命科技",
+    "market": "hk"
+  },
+  {
+    "code": "hk01117",
+    "name": "现代牧业",
+    "market": "hk"
+  },
+  {
+    "code": "hk01128",
+    "name": "永利澳门",
+    "market": "hk"
+  },
+  {
+    "code": "hk01138",
+    "name": "中远海发",
+    "market": "hk"
+  },
+  {
+    "code": "hk01151",
+    "name": "协鑫新能源",
+    "market": "hk"
+  },
+  {
+    "code": "hk01157",
+    "name": "中联重科",
+    "market": "hk"
+  },
+  {
+    "code": "hk01177",
+    "name": "中国生物制药",
+    "market": "hk"
+  },
+  {
+    "code": "hk01179",
+    "name": "天洁环境",
+    "market": "hk"
+  },
+  {
+    "code": "hk01186",
+    "name": "中国铁建",
+    "market": "hk"
+  },
+  {
+    "code": "hk01188",
+    "name": "正道集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk01191",
+    "name": "大唐新能源",
+    "market": "hk"
+  },
+  {
+    "code": "hk01193",
+    "name": "华润燃气",
+    "market": "hk"
+  },
+  {
+    "code": "hk01196",
+    "name": "伟禄集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk01205",
+    "name": "中信资源",
+    "market": "hk"
+  },
+  {
+    "code": "hk01209",
+    "name": "华润万象生活",
+    "market": "hk"
+  },
+  {
+    "code": "hk01211",
+    "name": "比亚迪股份",
+    "market": "hk"
+  },
+  {
+    "code": "hk01212",
+    "name": "利福国际",
+    "market": "hk"
+  },
+  {
+    "code": "hk01216",
+    "name": "中国齐鲁高速",
+    "market": "hk"
+  },
+  {
+    "code": "hk01218",
+    "name": "绿叶制药",
+    "market": "hk"
+  },
+  {
+    "code": "hk01219",
+    "name": "华谊腾讯娱乐",
+    "market": "hk"
+  },
+  {
+    "code": "hk01225",
+    "name": "隆基泰和智慧能源",
+    "market": "hk"
+  },
+  {
+    "code": "hk01230",
+    "name": "雅士利国际",
+    "market": "hk"
+  },
+  {
+    "code": "hk01233",
+    "name": "时代中国控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk01234",
+    "name": "计图互动",
+    "market": "hk"
+  },
+  {
+    "code": "hk01235",
+    "name": "一化控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk01236",
+    "name": "国农科技",
+    "market": "hk"
+  },
+  {
+    "code": "hk01239",
+    "name": "甘肃银行",
+    "market": "hk"
+  },
+  {
+    "code": "hk01240",
+    "name": "科通芯城",
+    "market": "hk"
+  },
+  {
+    "code": "hk01243",
+    "name": "盈德气体",
+    "market": "hk"
+  },
+  {
+    "code": "hk01244",
+    "name": "光汇石油",
+    "market": "hk"
+  },
+  {
+    "code": "hk01247",
+    "name": "米格国际控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk01248",
+    "name": "富豪产业信托",
+    "market": "hk"
+  },
+  {
+    "code": "hk01250",
+    "name": "北控水务集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk01251",
+    "name": "华彩控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk01253",
+    "name": "辉煌科技",
+    "market": "hk"
+  },
+  {
+    "code": "hk01254",
+    "name": "卓越教育集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk01255",
+    "name": "新兴印刷",
+    "market": "hk"
+  },
+  {
+    "code": "hk01257",
+    "name": "中国光大绿色环保",
+    "market": "hk"
+  },
+  {
+    "code": "hk01258",
+    "name": "中国物流资产",
+    "market": "hk"
+  },
+  {
+    "code": "hk01259",
+    "name": "天福",
+    "market": "hk"
+  },
+  {
+    "code": "hk01260",
+    "name": "多牛传媒",
+    "market": "hk"
+  },
+  {
+    "code": "hk01263",
+    "name": "强泰环保",
+    "market": "hk"
+  },
+  {
+    "code": "hk01264",
+    "name": "威发国际",
+    "market": "hk"
+  },
+  {
+    "code": "hk01266",
+    "name": "西证国际证券",
+    "market": "hk"
+  },
+  {
+    "code": "hk01267",
+    "name": "巨涛海洋石油服务",
+    "market": "hk"
+  },
+  {
+    "code": "hk01268",
+    "name": "美亚控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk01269",
+    "name": "首控集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk01270",
+    "name": "朗廷-SS",
+    "market": "hk"
+  },
+  {
+    "code": "hk01271",
+    "name": "智城控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk01273",
+    "name": "天伦燃气",
+    "market": "hk"
+  },
+  {
+    "code": "hk01275",
+    "name": "东阳光药",
+    "market": "hk"
+  },
+  {
+    "code": "hk01276",
+    "name": "橙天嘉禾",
+    "market": "hk"
+  },
+  {
+    "code": "hk01277",
+    "name": "新天地产集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk01278",
+    "name": "鼎丰集团控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk01279",
+    "name": "环宇物流",
+    "market": "hk"
+  },
+  {
+    "code": "hk01280",
+    "name": "汇银智慧社区",
+    "market": "hk"
+  },
+  {
+    "code": "hk01282",
+    "name": "中电华通",
+    "market": "hk"
+  },
+  {
+    "code": "hk01283",
+    "name": "华强方特",
+    "market": "hk"
+  },
+  {
+    "code": "hk01284",
+    "name": "超凡网络",
+    "market": "hk"
+  },
+  {
+    "code": "hk01286",
+    "name": "紫金矿业",
+    "market": "hk"
+  },
+  {
+    "code": "hk01287",
+    "name": "中国地能",
+    "market": "hk"
+  },
+  {
+    "code": "hk01288",
+    "name": "农业银行",
+    "market": "hk"
+  },
+  {
+    "code": "hk01289",
+    "name": "荣威国际",
+    "market": "hk"
+  },
+  {
+    "code": "hk01290",
+    "name": "希玛眼科",
+    "market": "hk"
+  },
+  {
+    "code": "hk01291",
+    "name": "枫叶教育",
+    "market": "hk"
+  },
+  {
+    "code": "hk01292",
+    "name": "顺腾国际控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk01293",
+    "name": "宝新金融",
+    "market": "hk"
+  },
+  {
+    "code": "hk01294",
+    "name": "中保华一",
+    "market": "hk"
+  },
+  {
+    "code": "hk01295",
+    "name": "宝德科技集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk01296",
+    "name": "商赢环球",
+    "market": "hk"
+  },
+  {
+    "code": "hk01297",
+    "name": "盛龙化工",
+    "market": "hk"
+  },
+  {
+    "code": "hk01298",
+    "name": "光谷联合",
+    "market": "hk"
+  },
+  {
+    "code": "hk01299",
+    "name": "友邦保险",
+    "market": "hk"
+  },
+  {
+    "code": "hk01302",
+    "name": "先健科技",
+    "market": "hk"
+  },
+  {
+    "code": "hk01308",
+    "name": "海天国际",
+    "market": "hk"
+  },
+  {
+    "code": "hk01310",
+    "name": "香港宽频",
+    "market": "hk"
+  },
+  {
+    "code": "hk01316",
+    "name": "耐世特",
+    "market": "hk"
+  },
+  {
+    "code": "hk01317",
+    "name": "枫叶教育",
+    "market": "hk"
+  },
+  {
+    "code": "hk01318",
+    "name": "高伟电子",
+    "market": "hk"
+  },
+  {
+    "code": "hk01319",
+    "name": "吉利汽车",
+    "market": "hk"
+  },
+  {
+    "code": "hk01332",
+    "name": "中国钱包",
+    "market": "hk"
+  },
+  {
+    "code": "hk01334",
+    "name": "雷蛇",
+    "market": "hk"
+  },
+  {
+    "code": "hk01336",
+    "name": "新华保险",
+    "market": "hk"
+  },
+  {
+    "code": "hk01339",
+    "name": "中国人民保险集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk01350",
+    "name": "Lab on",
+    "market": "hk"
+  },
+  {
+    "code": "hk01359",
+    "name": "中国信达",
+    "market": "hk"
+  },
+  {
+    "code": "hk01368",
+    "name": "特步国际",
+    "market": "hk"
+  },
+  {
+    "code": "hk01378",
+    "name": "中国宏泰发展",
+    "market": "hk"
+  },
+  {
+    "code": "hk01382",
+    "name": "鸿宝资源",
+    "market": "hk"
+  },
+  {
+    "code": "hk01385",
+    "name": "环球医疗",
+    "market": "hk"
+  },
+  {
+    "code": "hk01388",
+    "name": "安贤中国",
+    "market": "hk"
+  },
+  {
+    "code": "hk01398",
+    "name": "工商银行",
+    "market": "hk"
+  },
+  {
+    "code": "hk01432",
+    "name": "恒腾网络",
+    "market": "hk"
+  },
+  {
+    "code": "hk01448",
+    "name": "福寿园",
+    "market": "hk"
+  },
+  {
+    "code": "hk01452",
+    "name": "迪诺斯环保",
+    "market": "hk"
+  },
+  {
+    "code": "hk01458",
+    "name": "周黑鸭",
+    "market": "hk"
+  },
+  {
+    "code": "hk01462",
+    "name": "金诚控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk01478",
+    "name": "丘钛科技",
+    "market": "hk"
+  },
+  {
+    "code": "hk01508",
+    "name": "中国再保险",
+    "market": "hk"
+  },
+  {
+    "code": "hk01513",
+    "name": "丽珠医药",
+    "market": "hk"
+  },
+  {
+    "code": "hk01515",
+    "name": "华润医疗",
+    "market": "hk"
+  },
+  {
+    "code": "hk01528",
+    "name": "红星美凯龙",
+    "market": "hk"
+  },
+  {
+    "code": "hk01530",
+    "name": "三生制药",
+    "market": "hk"
+  },
+  {
+    "code": "hk01548",
+    "name": "金斯瑞生物科技",
+    "market": "hk"
+  },
+  {
+    "code": "hk01579",
+    "name": "颐海国际",
+    "market": "hk"
+  },
+  {
+    "code": "hk01585",
+    "name": "雅迪控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk01600",
+    "name": "天伦燃气",
+    "market": "hk"
+  },
+  {
+    "code": "hk01608",
+    "name": "伟能集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk01638",
+    "name": "佳兆业集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk01658",
+    "name": "邮储银行",
+    "market": "hk"
+  },
+  {
+    "code": "hk01668",
+    "name": "华南城",
+    "market": "hk"
+  },
+  {
+    "code": "hk01680",
+    "name": "澳门励骏",
+    "market": "hk"
+  },
+  {
+    "code": "hk01717",
+    "name": "澳优",
+    "market": "hk"
+  },
+  {
+    "code": "hk01728",
+    "name": "正通汽车",
+    "market": "hk"
+  },
+  {
+    "code": "hk01755",
+    "name": "新城悦服务",
+    "market": "hk"
+  },
+  {
+    "code": "hk01772",
+    "name": "赣锋锂业",
+    "market": "hk"
+  },
+  {
+    "code": "hk01776",
+    "name": "广发证券",
+    "market": "hk"
+  },
+  {
+    "code": "hk01797",
+    "name": "新东方-S",
+    "market": "hk"
+  },
+  {
+    "code": "hk01800",
+    "name": "中国交通建设",
+    "market": "hk"
+  },
+  {
+    "code": "hk01810",
+    "name": "小米集团-W",
+    "market": "hk"
+  },
+  {
+    "code": "hk01812",
+    "name": "晨鸣纸业",
+    "market": "hk"
+  },
+  {
+    "code": "hk01816",
+    "name": "中广核电力",
+    "market": "hk"
+  },
+  {
+    "code": "hk01818",
+    "name": "招金矿业",
+    "market": "hk"
+  },
+  {
+    "code": "hk01833",
+    "name": "平安好医生",
+    "market": "hk"
+  },
+  {
+    "code": "hk01860",
+    "name": "汇付天下",
+    "market": "hk"
+  },
+  {
+    "code": "hk01873",
+    "name": "维亚生物",
+    "market": "hk"
+  },
+  {
+    "code": "hk01876",
+    "name": "百威亚太",
+    "market": "hk"
+  },
+  {
+    "code": "hk01880",
+    "name": "中国中免",
+    "market": "hk"
+  },
+  {
+    "code": "hk01898",
+    "name": "中国有色金属",
+    "market": "hk"
+  },
+  {
+    "code": "hk01911",
+    "name": "华兴资本控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk01918",
+    "name": "融创中国",
+    "market": "hk"
+  },
+  {
+    "code": "hk01928",
+    "name": "金沙中国",
+    "market": "hk"
+  },
+  {
+    "code": "hk01951",
+    "name": "锦欣生殖",
+    "market": "hk"
+  },
+  {
+    "code": "hk01952",
+    "name": "云顶新耀-B",
+    "market": "hk"
+  },
+  {
+    "code": "hk01958",
+    "name": "北京汽车",
+    "market": "hk"
+  },
+  {
+    "code": "hk01963",
+    "name": "重庆银行",
+    "market": "hk"
+  },
+  {
+    "code": "hk01966",
+    "name": "中骏集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk01970",
+    "name": "IMAX中国",
+    "market": "hk"
+  },
+  {
+    "code": "hk01972",
+    "name": "赣锋锂业",
+    "market": "hk"
+  },
+  {
+    "code": "hk01988",
+    "name": "民生银行",
+    "market": "hk"
+  },
+  {
+    "code": "hk01999",
+    "name": "敏华控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk02005",
+    "name": "石四药集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk02013",
+    "name": "微盟集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk02018",
+    "name": "瑞声科技",
+    "market": "hk"
+  },
+  {
+    "code": "hk02020",
+    "name": "安踏体育",
+    "market": "hk"
+  },
+  {
+    "code": "hk02039",
+    "name": "中集集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk02318",
+    "name": "中国平安",
+    "market": "hk"
+  },
+  {
+    "code": "hk02319",
+    "name": "蒙牛乳业",
+    "market": "hk"
+  },
+  {
+    "code": "hk02328",
+    "name": "中国财险",
+    "market": "hk"
+  },
+  {
+    "code": "hk02338",
+    "name": "潍柴动力",
+    "market": "hk"
+  },
+  {
+    "code": "hk02348",
+    "name": "东瀛游",
+    "market": "hk"
+  },
+  {
+    "code": "hk02356",
+    "name": "大昌行集团",
+    "market": "hk"
+  },
+  {
+    "code": "hk02358",
+    "name": "中软国际",
+    "market": "hk"
+  },
+  {
+    "code": "hk02368",
+    "name": "中骏商管",
+    "market": "hk"
+  },
+  {
+    "code": "hk02380",
+    "name": "中国电力",
+    "market": "hk"
+  },
+  {
+    "code": "hk02382",
+    "name": "舜宇光学科技",
+    "market": "hk"
+  },
+  {
+    "code": "hk02383",
+    "name": "日本城控股",
+    "market": "hk"
+  },
+  {
+    "code": "hk02386",
+    "name": "中石化油服",
+    "market": "hk"
+  },
+  {
+    "code": "hk02388",
+    "name": "中银香港",
+    "market": "hk"
+  },
+  {
+    "code": "hk02400",
+    "name": "心动公司",
+    "market": "hk"
+  },
+  {
+    "code": "hk09618",
+    "name": "京东集团-W",
+    "market": "hk"
+  },
+  {
+    "code": "hk09626",
+    "name": "哔哩哔哩-W",
+    "market": "hk"
+  },
+  {
+    "code": "hk09888",
+    "name": "百度集团-W",
+    "market": "hk"
+  },
+  {
+    "code": "hk09988",
+    "name": "阿里巴巴-W",
+    "market": "hk"
+  },
+  {
+    "code": "hk09999",
+    "name": "网易-S",
+    "market": "hk"
+  }
+]
