@@ -279,6 +279,7 @@ async function fetchFromSinaHK(codes) {
                 code: code,
                 name: fields[1] || fields[0] || '',
                 currentPrice: parseFloat(fields[6]) || 0,
+                yesterdayClose: parseFloat(fields[3]) || 0,
                 highPrice: parseFloat(fields[4]) || 0,
                 lowPrice: parseFloat(fields[5]) || 0,
                 change: parseFloat(fields[7]) || 0,
@@ -367,6 +368,7 @@ async function fetchFromSinaUS(codes) {
                 code: code,
                 name: fields[0] || ticker,
                 currentPrice: parseFloat(fields[1]) || 0,
+                yesterdayClose: parseFloat(fields[5]) || 0,
                 highPrice: 0,
                 lowPrice: 0,
                 change: parseFloat(fields[4]) || 0,
@@ -411,7 +413,7 @@ async function getCachedStocks(codes) {
 // ========= 搜索股票API（代理腾讯财经搜索）=========
 async function searchStocksFromAPI(keyword) {
     // 腾讯财经 smartbox 搜索API，覆盖面比新浪更广
-    const url = 'http://smartbox.gtimg.cn/s3/';
+    const url = 'https://smartbox.gtimg.cn/s3/';
     const params = {
         t: 'all',
         q: keyword
@@ -628,30 +630,48 @@ var INDEX_CODES = [
     'hkHSI','hkHSTECH','hkHSCEI','hkHSCCI',
     'usDJI','usIXIC','usINX','usNDX',
     'fuGC','fuCL','fuSI','fuHG','fuNG','fuZC','fuRB',
-    'fxUSDCNY','fxUSDHKD','fxEURUSD','fxGBPUSD','fxUSDJPY','fxEURCNY','fxEURHKD','fxJPYCNY',
+    'fxUSDCNY','fxHKDCNY','fxUSDHKD','fxEURCNY','fxJPYCNY','fxGBPCNY','fxAUDCNY','fxCADCNY','fxSGDCNY','fxCHFCNY','fxTWDCNY','fxEURUSD','fxGBPUSD','fxUSDJPY',
     'sh000012','sh000013'
 ];
-var indexCache = { data: null, timestamp: 0, ttl: 5000 };
+// 指数缓存：按请求的codes集合分组缓存，TTL 10秒（腾讯接口3-5秒更新一次）
+var indexCache = {};
+var INDEX_CACHE_TTL = 10000;
 
 app.get('/api/indices', async function(req, res) {
     try {
         var now = Date.now();
-        if (indexCache.data && (now - indexCache.timestamp) < indexCache.ttl) {
-            return res.json({success: true, data: indexCache.data});
+
+        // 前端可传入 codes 参数，仅拉取需要的指数（大幅减少请求体积）
+        var requestedCodes = req.query.codes ? req.query.codes.split(',') : INDEX_CODES;
+        var cacheKey = requestedCodes.slice().sort().join(',');
+
+        var cached = indexCache[cacheKey];
+        if (cached && (now - cached.timestamp) < INDEX_CACHE_TTL) {
+            return res.json({success: true, data: cached.data});
         }
-        
-        var codesStr = INDEX_CODES.join(',');
-        var url = 'http://qt.gtimg.cn/q=' + codesStr;
-        var response = await axios.get(url, { responseType: 'arraybuffer', timeout: 10000 });
-        var data = iconv.decode(response.data, 'gbk');
-        var stocks = parseStockData(data);
-        
-        indexCache.data = stocks;
-        indexCache.timestamp = now;
-        res.json({success: true, data: stocks});
+
+        // 腾讯接口单次最大约60个，分批请求避免超时
+        var allStocks = [];
+        var BATCH_SIZE = 55;
+        for (var i = 0; i < requestedCodes.length; i += BATCH_SIZE) {
+            var batch = requestedCodes.slice(i, i + BATCH_SIZE);
+            var url = 'http://qt.gtimg.cn/q=' + batch.join(',');
+            var response = await axios.get(url, { responseType: 'arraybuffer', timeout: 8000 });
+            var data = iconv.decode(response.data, 'gbk');
+            allStocks = allStocks.concat(parseStockData(data));
+        }
+
+        indexCache[cacheKey] = { data: allStocks, timestamp: now };
+        res.json({success: true, data: allStocks});
     } catch (error) {
-        if (indexCache.data) {
-            return res.json({success: true, data: indexCache.data});
+        var cacheKey = (req.query.codes || INDEX_CODES.join(',')).split(',').slice().sort().join(',');
+        if (indexCache[cacheKey]) {
+            return res.json({success: true, data: indexCache[cacheKey].data});
+        }
+        // 兜底：尝试任一缓存
+        var keys = Object.keys(indexCache);
+        if (keys.length > 0) {
+            return res.json({success: true, data: indexCache[keys[0]].data});
         }
         res.json({success: true, data: []});
     }
@@ -691,6 +711,7 @@ function parseStockData(rawData) {
                 code: code,
                 name: fields[1] || '',
                 currentPrice: parseFloat(fields[3]) || 0,
+                yesterdayClose: parseFloat(fields[4]) || 0,
                 highPrice: parseFloat(fields[33]) || 0,
                 lowPrice: parseFloat(fields[34]) || 0,
                 change: parseFloat(fields[31]) || 0,
@@ -708,6 +729,18 @@ function parseStockData(rawData) {
 
 const server = app.listen(PORT, HOST, function() {
     console.log('Server started at http://' + HOST + ':' + PORT);
+    // 预热默认指数缓存（7个常用指数），首次页面加载直接命中
+    var defaultCodes = ['sh000001','sz399001','sz399006','hkHSI','hkHSTECH','sh000300','sh000905'];
+    var url = 'http://qt.gtimg.cn/q=' + defaultCodes.join(',');
+    axios.get(url, { responseType: 'arraybuffer', timeout: 10000 }).then(function(response) {
+        var data = iconv.decode(response.data, 'gbk');
+        var stocks = parseStockData(data);
+        var cacheKey = defaultCodes.slice().sort().join(',');
+        indexCache[cacheKey] = { data: stocks, timestamp: Date.now() };
+        console.log('Index cache warmed: ' + stocks.length + ' indices');
+    }).catch(function(err) {
+        console.log('Index warmup skipped (no network or offline)');
+    });
 });
 
 server.on('error', function(error) {

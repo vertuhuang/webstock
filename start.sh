@@ -4,13 +4,15 @@
 
 echo "🚀 股票监控系统 - 启动中..."
 
-# 检查Node.js是否安装
-if ! command -v node &> /dev/null; then
-    echo "❌ 错误：未检测到Node.js，请先安装Node.js (https://nodejs.org/)"
+# WorkBuddy 托管版 Node.js
+NODE_BIN="$HOME/.workbuddy/binaries/node/versions/22.22.2/bin/node"
+
+if [ ! -f "$NODE_BIN" ]; then
+    echo "❌ 错误：未找到 Node.js ($NODE_BIN)"
     exit 1
 fi
 
-echo "✅ Node.js版本：$(node -v)"
+echo "✅ Node.js版本：$($NODE_BIN -v)"
 
 # 检查依赖是否安装
 if [ ! -d "node_modules" ]; then
@@ -56,4 +58,4 @@ echo ""
 echo "按 Ctrl+C 停止服务器"
 echo ""
 
-node server.js
+"$NODE_BIN" server.js

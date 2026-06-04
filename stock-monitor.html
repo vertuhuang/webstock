@@ -57,9 +57,10 @@
             display: flex;
             flex-direction: column;
             gap: 0;
-            padding: 0;
+            padding: 16px;
             margin-bottom: 28px;
             background: #fff;
+            border: 1px solid #dee2e6;
             border-radius: 4px;
             font-size: 13px;
             color: #333;
@@ -76,6 +77,7 @@
 
         .index-category-group:first-child {
             border-top: none;
+            padding-top: 0;
         }
 
         .index-category-group:last-child {
@@ -334,7 +336,7 @@
         .table-wrapper {
             margin-top: 20px;
             border-radius: 4px;
-            overflow: hidden;
+            overflow: clip;
         }
 
         .stock-table {
@@ -385,15 +387,9 @@
             font-family: inherit;
         }
 
-        .stock-code {
-            font-size: 12px;
-            color: #000000;
-            background: #f8f9fa;
-            padding: 2px 6px;
-            border-radius: 2px;
-        }
 
         .stock-name {
+            position: relative;
             font-weight: normal;
             color: #000000;
             font-size: 12px;
@@ -401,6 +397,27 @@
             overflow: hidden;
             text-overflow: ellipsis;
             display: block;
+            cursor: default;
+        }
+
+        .stock-name[data-tooltip]:hover {
+            overflow: visible;
+        }
+
+        .stock-name[data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 0;
+            bottom: 100%;
+            margin-bottom: 2px;
+            padding: 3px 8px;
+            background: #333;
+            color: #fff;
+            font-size: 12px;
+            border-radius: 3px;
+            white-space: nowrap;
+            z-index: 100;
+            pointer-events: none;
         }
 
         .stock-price {
@@ -498,12 +515,12 @@
         .empty-state {
             text-align: center;
             padding: 40px;
-            color: #95a5a6;
+            color: #aaa;
         }
 
         .empty-state p {
             margin-top: 10px;
-            font-size: 16px;
+            font-size: 12px;
         }
 
         .loading {
@@ -599,16 +616,16 @@
             <thead>
                 <tr>
                     <th style="width: 28px; text-align: center;">#</th>
-                    <th style="width: 75px; text-align: left;">代码</th>
                     <th style="width: 130px; text-align: left;">名称</th>
-                    <th style="width: 72px; text-align: right;">当前价</th>
-                    <th style="width: 72px; text-align: right;">最高价</th>
-                    <th style="width: 72px; text-align: right;">最低价</th>
-                    <th style="width: 72px; text-align: right;">涨跌额</th>
-                    <th style="width: 66px; text-align: right;">涨跌幅</th>
-                    <th style="width: 78px; text-align: right;">成交(万手)</th>
-                    <th style="width: 68px; text-align: right;">换手率</th>
-                    <th style="width: 72px; text-align: center;">操作</th>
+                    <th style="width: 68px; text-align: right;">当前价</th>
+                    <th style="width: 64px; text-align: right;">涨跌额</th>
+                    <th style="width: 58px; text-align: right;">涨跌幅</th>
+                    <th style="width: 66px; text-align: right;">昨收</th>
+                    <th style="width: 68px; text-align: right;">最高价</th>
+                    <th style="width: 68px; text-align: right;">最低价</th>
+                    <th style="width: 72px; text-align: right;">成交(万手)</th>
+                    <th style="width: 60px; text-align: right;">换手率</th>
+                    <th style="width: 66px; text-align: center;">操作</th>
                 </tr>
             </thead>
             <tbody id="stockTableBody">
@@ -617,8 +634,8 @@
         </div>
 
         <div class="empty-state" id="emptyState" style="display: none;">
-            <p>📭 暂无监控标的</p>
-            <p style="font-size: 14px; margin-top: 5px;">请在上方输入框中添加股票代码或名称</p>
+            <p>暂无监控标的</p>
+            <p style="margin-top: 4px;">可在上方输入框中添加股票/基金/可转债</p>
         </div>
     </div>
 
@@ -1046,13 +1063,13 @@
             monitoredStocks.forEach(function(code, index) {
                 html += '<tr id="row-' + index + '" draggable="true">' +
                     '<td style="text-align: center;">' + (index + 1) + '</td>' +
-                    '<td style="text-align: left;"><span class="stock-code">' + code.toUpperCase() + '</span></td>' +
-                    '<td style="text-align: left;"><span class="stock-name" id="name-' + index + '">加载中...</span></td>' +
+                    '<td style="text-align: left;"><span class="stock-name" id="name-' + index + '" data-tooltip="' + code.toUpperCase() + '">加载中...</span></td>' +
                     '<td style="text-align: right;"><span class="stock-price" id="price-' + index + '">-</span></td>' +
-                    '<td style="text-align: right;"><span class="stock-price" id="high-' + index + '">-</span></td>' +
-                    '<td style="text-align: right;"><span class="stock-price" id="low-' + index + '">-</span></td>' +
                     '<td style="text-align: right;"><span id="change-' + index + '">-</span></td>' +
                     '<td style="text-align: right;"><span id="percent-' + index + '">-</span></td>' +
+                    '<td style="text-align: right;"><span class="stock-price" id="closeYest-' + index + '">-</span></td>' +
+                    '<td style="text-align: right;"><span class="stock-price" id="high-' + index + '">-</span></td>' +
+                    '<td style="text-align: right;"><span class="stock-price" id="low-' + index + '">-</span></td>' +
                     '<td style="text-align: right;"><span class="stock-volume" id="volume-' + index + '">-</span></td>' +
                     '<td style="text-align: right;"><span id="turnover-' + index + '">-</span></td>' +
                     '<td style="text-align: center;">' +
@@ -1111,6 +1128,7 @@
 
                 document.getElementById('name-' + index).textContent = stock.name;
                 document.getElementById('price-' + index).textContent = formatPrice(stock.currentPrice, stock.stale);
+                document.getElementById('closeYest-' + index).textContent = formatPrice(stock.yesterdayClose, stock.stale);
                 document.getElementById('high-' + index).textContent = formatPrice(stock.highPrice, stock.stale);
                 document.getElementById('low-' + index).textContent = formatPrice(stock.lowPrice, stock.stale);
                 
@@ -1146,11 +1164,16 @@
                 clearInterval(updateInterval);
             }
 
+            // 股票数据 3 秒刷新；指数数据变化慢，每 10 秒刷新一次
             updateInterval = setInterval(function() {
                 updateStockData();
-                updateIndexBar();
             }, 3000);
+
             updateIndexBar();
+            // 指数独立轮询（避免每次刷大量指数拖慢股票列表）
+            setInterval(function() {
+                updateIndexBar();
+            }, 10000);
         }
 
         // ========= 大盘指数 =========
@@ -1199,18 +1222,17 @@
             {code: 'fuNG',     name: '天然气',    market: '商品'},
             {code: 'fuZC',     name: 'CBOT玉米',  market: '商品'},
             {code: 'fuRB',     name: '汽油',      market: '商品'},
-            {code: 'fxUSDCNY', name: '美元兑人民币',   market: '汇率'},
-            {code: 'fxHKDCNY', name: '港币兑人民币',   market: '汇率'},
-            {code: 'fxHKDUSD', name: '港币兑美元',     market: '汇率'},
-            {code: 'fxTWDCNY', name: '台币兑人民币',   market: '汇率'},
-            {code: 'fxEURCNY', name: '欧元兑人民币',   market: '汇率'},
-            {code: 'fxJPYCNY', name: '日元兑人民币',   market: '汇率'},
-            {code: 'fxKRWCNY', name: '韩元兑人民币',   market: '汇率'},
-            {code: 'fxSGDCNY', name: '新加坡币兑人民币', market: '汇率'},
-            {code: 'fxTHBCNY', name: '泰铢兑人民币',   market: '汇率'},
-            {code: 'fxVNDCNY', name: '越南盾兑人民币', market: '汇率'},
-            {code: 'fxIDRCNY', name: '印尼盾兑人民币', market: '汇率'},
-            {code: 'fxJPYCNY', name: '日元/人民币', market: '汇率'},
+            {code: 'fxUSDCNY', name: '美元/人民币',       market: '汇率'},
+            {code: 'fxHKDCNY', name: '港币/人民币',       market: '汇率'},
+            {code: 'fxUSDHKD', name: '美元/港币',         market: '汇率'},
+            {code: 'fxEURCNY', name: '欧元/人民币',       market: '汇率'},
+            {code: 'fxJPYCNY', name: '日元/人民币',       market: '汇率'},
+            {code: 'fxGBPCNY', name: '英镑/人民币',       market: '汇率'},
+            {code: 'fxAUDCNY', name: '澳元/人民币',       market: '汇率'},
+            {code: 'fxCADCNY', name: '加元/人民币',       market: '汇率'},
+            {code: 'fxSGDCNY', name: '新加坡元/人民币',    market: '汇率'},
+            {code: 'fxCHFCNY', name: '瑞郎/人民币',       market: '汇率'},
+            {code: 'fxTWDCNY', name: '新台币/人民币',     market: '汇率'},
             {code: 'sh000012', name: '国债指数',   market: '债券'},
             {code: 'sh000013', name: '企债指数',   market: '债券'}
         ];
@@ -1276,10 +1298,10 @@
 
         async function updateIndexBar() {
             try {
-                var result = await requestJson('/api/indices');
+                var selected = getSelectedIndices();
+                var result = await requestJson('/api/indices?codes=' + selected.join(','));
                 if (!result.success || !result.data) return;
 
-                var selected = getSelectedIndices();
                 var indexMap = {};
                 result.data.forEach(function(idx) {
                     indexMap[idx.code.toLowerCase()] = idx;
@@ -1287,6 +1309,12 @@
 
                 var bar = document.getElementById('indexBar');
                 var html = '';
+
+                // 构建代码->ALL_INDICES名称的映射，确保看板和配置弹窗展示一致
+                var nameMap = {};
+                ALL_INDICES.forEach(function(item) {
+                    nameMap[item.code] = item.name;
+                });
 
                 var marketOrder = ['A股','行业板块','港股','美股','商品','汇率','债券'];
                 var marketGroups = {};
@@ -1306,9 +1334,12 @@
                         if (!idx) return;
                         var change = idx.changePercent || 0;
                         var sign = change > 0 ? '+' : '';
+                        var isFx = /^fx/.test(code);
+                        var displayName = nameMap[code] || idx.name;
+                        var decimals = isFx ? 4 : 2;
                         items += '<span class="index-item">' +
-                            '<span class="index-name">' + idx.name + '</span>' +
-                            '<span class="index-price">' + idx.currentPrice.toFixed(2) + '</span>' +
+                            '<span class="index-name">' + displayName + '</span>' +
+                            '<span class="index-price">' + idx.currentPrice.toFixed(decimals) + '</span>' +
                             '<span class="index-change">(' + sign + change.toFixed(2) + '%)</span>' +
                         '</span>';
                     });

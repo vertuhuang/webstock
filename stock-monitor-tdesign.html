@@ -801,6 +801,17 @@
         let stockDatabase = []; // 股票数据库
         let currentSearchResults = []; // 当前搜索结果
         let currentCategory = 'all'; // 当前选中的分类
+        let remoteSearchTimer = null;
+        let remoteSearchToken = 0;
+
+        // 处理中文输入法：组合输入期间不触发搜索
+        let isComposing = false;
+        let inputEl = document.getElementById('stockInput');
+        inputEl.addEventListener('compositionstart', function() { isComposing = true; });
+        inputEl.addEventListener('compositionend', function(e) {
+            isComposing = false;
+            searchStock(e.target.value);
+        });
 
         // 页面加载时初始化
         window.onload = function() {
@@ -923,12 +934,16 @@
             return 3; // 其他默认3字
         }
 
-        // 搜索股票（按名称或代码模糊匹配）
+        // 搜索股票（先本地，本地无结果再远端）
         function searchStock(query) {
+            // 中文输入法组合中，跳过
+            if (isComposing) return;
+
             const threshold = getSearchThreshold(query);
             if (!query || threshold < 0 || query.trim().length < threshold) {
                 hideSearchDropdown();
                 currentSearchResults = [];
+                if (remoteSearchTimer) { clearTimeout(remoteSearchTimer); }
                 return;
             }
 
@@ -952,9 +967,56 @@
 
             if (results.length > 0) {
                 showSearchResults(results);
+                if (remoteSearchTimer) { clearTimeout(remoteSearchTimer); }
             } else {
-                showSearchEmpty();
+                // 本地无结果，300ms防抖后调用远端搜索
+                if (remoteSearchTimer) { clearTimeout(remoteSearchTimer); }
+                remoteSearchTimer = setTimeout(function() {
+                    const q = query.trim();
+                    remoteSearchToken++;
+                    const token = remoteSearchToken;
+                    showSearchLoading();
+                    searchFromRemote(q, token);
+                }, 300);
             }
+        }
+
+        // 显示远端搜索加载状态
+        function showSearchLoading() {
+            const dropdown = document.getElementById('searchDropdown');
+            dropdown.innerHTML = '<div class="search-empty">远端搜索中...</div>';
+            dropdown.classList.add('visible');
+        }
+
+        // 远端搜索（调用 /api/search-stocks）
+        function searchFromRemote(query, token) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', '/api/search-stocks?q=' + encodeURIComponent(query));
+            xhr.onload = function() {
+                // 忽略过期的远端请求
+                if (token !== remoteSearchToken) return;
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        const resp = JSON.parse(xhr.responseText);
+                        const remoteResults = (resp && resp.data) || [];
+                        currentSearchResults = remoteResults;
+                        if (remoteResults.length > 0) {
+                            showSearchResults(remoteResults);
+                        } else {
+                            showSearchEmpty();
+                        }
+                    } catch (e) {
+                        showSearchEmpty();
+                    }
+                } else {
+                    showSearchEmpty();
+                }
+            };
+            xhr.onerror = function() {
+                if (token !== remoteSearchToken) return;
+                showSearchEmpty();
+            };
+            xhr.send();
         }
 
         // 显示搜索结果下拉列表
