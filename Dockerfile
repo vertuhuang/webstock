@@ -1,21 +1,28 @@
-FROM node:18-alpine
+FROM node:22-alpine
+
+RUN apk add tzdata && \
+    cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+    echo Asia/Shanghai > /etc/timezone && \
+    apk del tzdata
+
 WORKDIR /app
 
-# 复制依赖文件
-COPY package.json package-lock.json ./
+COPY package*.json ./
 
-# 安装生产依赖
-RUN npm ci --omit=dev --ignore-scripts
+RUN npm config set registry https://mirrors.cloud.tencent.com/npm/ && \
+    npm install --production --ignore-scripts && \
+    npm cache clean --force
 
-# 复制应用代码
 COPY server.js ./
 COPY stock-database.json ./
+COPY hk-stock-database.json ./
 COPY stock-monitor.html ./
 COPY stock-monitor-tdesign.html ./
+COPY public/ ./public/
 
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=80
 
-EXPOSE 3000
+EXPOSE 80
 
 CMD ["node", "server.js"]

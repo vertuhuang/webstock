@@ -358,22 +358,19 @@ async function fetchFromSinaUS(codes) {
             var fields = match[1].split(',');
             if (fields.length < 10) continue;
 
-            // 新浪 gb_ 字段:
-            // 0=名称, 1=最新价, 2=涨跌幅%, 3=时间, 4=涨跌额
-            // 5=未知, 6=最高(昨收?), 7=今开(最高?), 8=最低
-            // Actually let me check with AAPL:
-            // 苹果,310.2600,-1.57,2026-06-04 09:30:11,-4.9400,314.1750,316.9400,308.8500,...
-            // 0=name, 1=price, 2=change%, 3=time, 4=change$, 5=?, 6=?, 7=?, 8=?
+            // 新浪 gb_ 字段（已验证）:
+            // 0=名称, 1=最新价, 2=涨跌幅%, 3=时间, 4=涨跌额, 6=今开,
+            // 7=最低, 8=最高, 10=成交量(股), 26=昨收
             stocks.push({
                 code: code,
                 name: fields[0] || ticker,
                 currentPrice: parseFloat(fields[1]) || 0,
-                yesterdayClose: parseFloat(fields[5]) || 0,
-                highPrice: 0,
-                lowPrice: 0,
+                yesterdayClose: parseFloat(fields[26]) || 0,
+                highPrice: parseFloat(fields[8]) || 0,
+                lowPrice: parseFloat(fields[7]) || 0,
                 change: parseFloat(fields[4]) || 0,
                 changePercent: parseFloat(fields[2]) || 0,
-                volume: 0,
+                volume: parseInt(fields[10]) || 0,
                 turnoverRate: 0
             });
         } catch (e) {

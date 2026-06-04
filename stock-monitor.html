@@ -5,6 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>实时股票监控 - Word文档风格</title>
     <style>
+        /* ============================================
+           TDesign 设计 Token
+           ============================================ */
+        :root {
+            --td-brand-color: #0052D9;
+            --td-brand-color-hover: #366EF4;
+            --td-brand-color-active: #003BA5;
+            --td-brand-color-light: #ECF2FE;
+            --td-text-color-primary: rgba(0, 0, 0, 0.9);
+            --td-text-color-secondary: rgba(0, 0, 0, 0.6);
+            --td-text-color-placeholder: rgba(0, 0, 0, 0.4);
+            --td-bg-color-page: #F5F6F7;
+            --td-bg-color-container: #FFFFFF;
+            --td-bg-color-container-hover: #F6F6F6;
+            --td-border-level-1-color: #E7E7E7;
+            --td-border-level-2-color: #DCDCDC;
+            --td-shadow-2: 0 2px 12px rgba(0, 0, 0, 0.12);
+            --td-shadow-3: 0 8px 24px rgba(0, 0, 0, 0.16);
+            --td-radius-medium: 3px;
+            --td-radius-large: 6px;
+            --td-font-size-body-medium: 14px;
+            --td-font-weight-medium: 500;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -50,7 +74,7 @@
         }
 
         .add-stock-section {
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .index-bar {
@@ -58,7 +82,7 @@
             flex-direction: column;
             gap: 0;
             padding: 16px;
-            margin-bottom: 28px;
+            margin-bottom: 16px;
             background: #fff;
             border: 1px solid #dee2e6;
             border-radius: 4px;
@@ -110,6 +134,89 @@
             color: #666;
         }
 
+        /* 隐身模式关闭：指数涨跌幅红绿 */
+        body:not(.stealth-on) .index-change-up {
+            color: #cf1322;
+        }
+
+        body:not(.stealth-on) .index-change-down {
+            color: #00a854;
+        }
+
+        .index-bar.hidden {
+            display: none;
+        }
+
+        /* Toggle 开关样式 */
+.index-config-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--td-bg-color-page);
+    border-radius: var(--td-radius-medium);
+    flex: 1;
+    min-width: 0;
+}
+
+.index-config-toggle-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.index-config-toggle .toggle-label {
+    font-size: var(--td-font-size-body-medium);
+    font-weight: var(--td-font-weight-medium);
+    color: var(--td-text-color-primary);
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--td-border-level-2-color);
+    transition: 0.3s;
+    border-radius: 24px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background-color: var(--td-brand-color);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(20px);
+}
+
         .input-group .index-config-btn {
             width: 38px;
             height: 38px;
@@ -137,11 +244,14 @@
             stroke: #333;
         }
 
+        /* ============================================
+           大盘指数配置弹窗 - TDesign Dialog 风格
+           ============================================ */
         .modal-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.3);
+            background: rgba(0, 0, 0, 0.6);
             z-index: 9999;
             justify-content: center;
             align-items: center;
@@ -152,21 +262,20 @@
         }
 
         .modal-dialog {
-            background: #fff;
-            border-radius: 6px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            width: 420px;
+            background: var(--td-bg-color-container);
+            border-radius: var(--td-radius-large);
+            box-shadow: var(--td-shadow-3);
+            width: 480px;
             max-height: 70vh;
             display: flex;
             flex-direction: column;
         }
 
         .modal-header {
-            padding: 14px 18px;
-            border-bottom: 1px solid #eee;
-            font-size: 15px;
-            font-weight: bold;
-            color: #333;
+            padding: 24px 24px 20px;
+            font-size: 16px;
+            font-weight: var(--td-font-weight-medium);
+            color: var(--td-text-color-primary);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -174,58 +283,84 @@
 
         .modal-close {
             cursor: pointer;
-            font-size: 18px;
-            color: #999;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: var(--td-radius-medium);
             border: none;
             background: none;
-            line-height: 1;
+            color: var(--td-text-color-secondary);
+            font-size: 16px;
+            transition: all 0.2s;
         }
 
-        .modal-close:hover { color: #333; }
+        .modal-close:hover {
+            background: var(--td-bg-color-container-hover);
+            color: var(--td-text-color-primary);
+        }
 
         .modal-body {
-            padding: 12px 18px;
+            padding: 0 24px 24px;
             overflow-y: auto;
             flex: 1;
         }
 
         .modal-body label {
             display: block;
-            padding: 2px 0;
-            font-size: 13px;
-            color: #333;
+            padding: 4px 0;
+            font-size: var(--td-font-size-body-medium);
+            color: var(--td-text-color-primary);
             cursor: pointer;
         }
 
         .modal-body input[type="checkbox"] {
-            margin-right: 6px;
+            margin-right: 8px;
             vertical-align: middle;
+            accent-color: var(--td-brand-color);
         }
 
         .modal-footer {
-            padding: 10px 18px;
-            border-top: 1px solid #eee;
-            text-align: right;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
         }
 
         .modal-footer button {
-            padding: 6px 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background: #fff;
+            padding: 5px 16px;
+            border-radius: var(--td-radius-medium);
             cursor: pointer;
-            font-size: 13px;
-            color: #333;
-            margin-left: 8px;
+            font-size: var(--td-font-size-body-medium);
+            font-family: inherit;
+            transition: all 0.2s;
+            border: 1px solid var(--td-border-level-2-color);
+            background: var(--td-bg-color-container);
+            color: var(--td-text-color-primary);
+            line-height: 22px;
+        }
+
+        .modal-footer button:hover {
+            background: var(--td-bg-color-container-hover);
+            border-color: var(--td-border-level-2-color);
         }
 
         .modal-footer .btn-primary {
-            background: #007bff;
+            background: var(--td-brand-color);
             color: #fff;
-            border-color: #007bff;
+            border-color: var(--td-brand-color);
         }
 
-        .modal-footer .btn-primary:hover { background: #0056b3; }
+        .modal-footer .btn-primary:hover {
+            background: var(--td-brand-color-hover);
+            border-color: var(--td-brand-color-hover);
+        }
+
+        .modal-footer .btn-primary:active {
+            background: var(--td-brand-color-active);
+            border-color: var(--td-brand-color-active);
+        }
 
 
         .input-group {
@@ -334,7 +469,7 @@
         }
 
         .table-wrapper {
-            margin-top: 20px;
+            margin-top: 16px;
             border-radius: 4px;
             overflow: clip;
         }
@@ -354,8 +489,27 @@
             z-index: 10;
         }
 
+        .stock-table th.sortable {
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s;
+        }
+
+        .stock-table th.sortable:hover {
+            background: #e9ecef;
+        }
+
+        .sort-indicator {
+            display: inline-flex;
+            flex-direction: column;
+            width: 14px;
+            margin-left: 3px;
+            vertical-align: middle;
+            align-self: center;
+        }
+
         .stock-table th {
-            padding: 10px 10px;
+            padding: 8px 10px;
             text-align: left;
             font-weight: normal;
             font-size: 12px;
@@ -380,7 +534,7 @@
         }
 
         .stock-table td {
-            padding: 8px 10px;
+            padding: 6px 10px;
             border: 1px solid #dee2e6;
             font-size: 12px;
             color: #000000;
@@ -436,6 +590,15 @@
 
         .stock-change-flat {
             color: #000000;
+        }
+
+        /* 隐身模式关闭：涨红跌绿 */
+        body:not(.stealth-on) .stock-change-up {
+            color: #cf1322;
+        }
+
+        body:not(.stealth-on) .stock-change-down {
+            color: #00a854;
         }
 
         .stock-volume {
@@ -619,7 +782,7 @@
                     <th style="width: 130px; text-align: left;">名称</th>
                     <th style="width: 68px; text-align: right;">当前价</th>
                     <th style="width: 64px; text-align: right;">涨跌额</th>
-                    <th style="width: 58px; text-align: right;">涨跌幅</th>
+                    <th style="width: 72px; text-align: right;" class="sortable" onclick="toggleSort('percent')">涨跌幅<span class="sort-indicator" id="sortIndicator"></span></th>
                     <th style="width: 66px; text-align: right;">昨收</th>
                     <th style="width: 68px; text-align: right;">最高价</th>
                     <th style="width: 68px; text-align: right;">最低价</th>
@@ -644,12 +807,30 @@
         let updateInterval = null;
         let stockDatabase = [];
         let currentSearchResults = [];
+        let sortState = null; // null | 'percent-asc' | 'percent-desc'
+        let stealthMode = true; // 隐身模式默认开启
 
         window.onload = function() {
             loadPageTitle();
             loadStockDatabase();
             loadStocks();
             renderTable();
+
+            // 恢复排序状态
+            var savedSort = localStorage.getItem('sortState');
+            sortState = savedSort || null;
+            updateSortIndicator();
+
+            // 恢复隐身模式
+            var savedStealth = localStorage.getItem('stealthMode');
+            stealthMode = savedStealth === null ? true : savedStealth === 'true';
+            applyStealthMode();
+
+            // 应用指数看板总开关状态
+            if (!isIndexDashboardEnabled()) {
+                document.getElementById('indexBar').classList.add('hidden');
+            }
+
             startAutoUpdate();
 
             // 拖拽排序
@@ -1095,6 +1276,68 @@
             updateStockData();
         }
 
+        // ========= 排序功能 =========
+        function toggleSort(field) {
+            if (sortState === field + '-asc') {
+                sortState = field + '-desc';
+            } else if (sortState === field + '-desc') {
+                sortState = null;
+            } else {
+                sortState = field + '-asc';
+            }
+            localStorage.setItem('sortState', sortState || '');
+            updateSortIndicator();
+            applySort();
+        }
+
+        function updateSortIndicator() {
+            var indicator = document.getElementById('sortIndicator');
+            if (!indicator) return;
+
+            var upColor, downColor;
+            if (sortState === 'percent-asc') {
+                upColor = '#333'; downColor = '#B0B0B0';
+            } else if (sortState === 'percent-desc') {
+                upColor = '#B0B0B0'; downColor = '#333';
+            } else {
+                upColor = '#B0B0B0'; downColor = '#B0B0B0';
+            }
+
+            var upSvg = '<svg width="12" height="8" viewBox="0 0 24 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block"><path d="M12 3L17.5 8.5H6.5L12 3Z" fill="' + upColor + '"/></svg>';
+            var downSvg = '<svg width="12" height="8" viewBox="0 0 24 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;margin-top:-2px"><path d="M12 8.5L17.5 3H6.5L12 8.5Z" fill="' + downColor + '"/></svg>';
+
+            indicator.innerHTML = upSvg + downSvg;
+        }
+
+        function applySort() {
+            var tbody = document.getElementById('stockTableBody');
+            if (!tbody) return;
+            var rows = Array.from(tbody.querySelectorAll('tr'));
+            if (rows.length === 0) return;
+
+            if (!sortState) {
+                // 恢复原始顺序
+                rows.sort(function(a, b) {
+                    return parseInt(a.id.replace('row-', '')) - parseInt(b.id.replace('row-', ''));
+                });
+            } else {
+                rows.sort(function(a, b) {
+                    var aText = document.getElementById('percent-' + a.id.replace('row-', ''));
+                    var bText = document.getElementById('percent-' + b.id.replace('row-', ''));
+                    var aVal = parseFloat(aText ? aText.textContent : '0') || 0;
+                    var bVal = parseFloat(bText ? bText.textContent : '0') || 0;
+                    return sortState === 'percent-asc' ? aVal - bVal : bVal - aVal;
+                });
+            }
+
+            // 重新排列 DOM 并更新序号
+            rows.forEach(function(row, i) {
+                tbody.appendChild(row);
+                var firstCell = row.querySelector('td:first-child');
+                if (firstCell) firstCell.textContent = i + 1;
+            });
+        }
+
         async function updateStockData() {
             if (monitoredStocks.length === 0) return;
 
@@ -1109,6 +1352,7 @@
 
                 if (result.success) {
                     updateTableData(result.data);
+                    applySort();
                     document.getElementById('updateTime').textContent = 
                         '最后更新：' + new Date().toLocaleTimeString('zh-CN');
                 } else {
@@ -1143,7 +1387,7 @@
                 percentEl.className = percentVal > 0 ? 'stock-change-up' : percentVal < 0 ? 'stock-change-down' : 'stock-change-flat';
                 
                 document.getElementById('volume-' + index).textContent = stock.stale ? '-' : formatVolume(stock.volume);
-                document.getElementById('turnover-' + index).textContent = stock.stale ? '-' : stock.turnoverRate.toFixed(2) + '%';
+                document.getElementById('turnover-' + index).textContent = stock.stale ? '-' : (stock.turnoverRate > 0 ? stock.turnoverRate.toFixed(2) + '%' : '-');
             });
         }
 
@@ -1251,10 +1495,54 @@
             localStorage.setItem('selectedIndices', JSON.stringify(codes));
         }
 
+        function isIndexDashboardEnabled() {
+            var saved = localStorage.getItem('indexDashboardEnabled');
+            if (saved === null) return true; // 默认开启
+            return saved === 'true';
+        }
+
+        function saveIndexDashboardEnabled(enabled) {
+            localStorage.setItem('indexDashboardEnabled', enabled.toString());
+            var bar = document.getElementById('indexBar');
+            if (enabled) {
+                bar.classList.remove('hidden');
+                updateIndexBar();
+            } else {
+                bar.classList.add('hidden');
+            }
+        }
+
+        function applyStealthMode() {
+            if (stealthMode) {
+                document.body.classList.add('stealth-on');
+            } else {
+                document.body.classList.remove('stealth-on');
+            }
+        }
+
         function openIndexConfig() {
             var selected = getSelectedIndices();
             var body = document.getElementById('indexConfigBody');
+            var dashboardEnabled = isIndexDashboardEnabled();
             var html = '';
+
+            // 隐身模式 + 指数看板 并排
+            html += '<div class="index-config-toggle-row">';
+            html += '<div class="index-config-toggle">';
+            html += '<span class="toggle-label">隐身模式</span>';
+            html += '<label class="toggle-switch">';
+            html += '<input type="checkbox" id="stealthModeToggle"' + (stealthMode ? ' checked' : '') + '>';
+            html += '<span class="toggle-slider"></span>';
+            html += '</label>';
+            html += '</div>';
+            html += '<div class="index-config-toggle">';
+            html += '<span class="toggle-label">指数看板</span>';
+            html += '<label class="toggle-switch">';
+            html += '<input type="checkbox" id="indexDashboardToggle"' + (dashboardEnabled ? ' checked' : '') + '>';
+            html += '<span class="toggle-slider"></span>';
+            html += '</label>';
+            html += '</div>';
+            html += '</div>';
 
             var groups = {};
             ALL_INDICES.forEach(function(idx) {
@@ -1266,7 +1554,7 @@
             marketOrder.forEach(function(market) {
                 var list = groups[market];
                 if (!list) return;
-                html += '<div style="font-size:12px;color:#999;margin-top:22px;margin-bottom:6px">' + market + '</div>';
+                html += '<div style="font-size:12px;color:var(--td-text-color-placeholder);margin-top:20px;margin-bottom:8px">' + market + '</div>';
                 html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px 8px">';
                 list.forEach(function(idx) {
                     var checked = selected.indexOf(idx.code) !== -1 ? ' checked' : '';
@@ -1292,11 +1580,32 @@
                 return;
             }
             saveSelectedIndices(codes);
+
+            // 保存总开关状态
+            var toggleEl = document.getElementById('indexDashboardToggle');
+            var enabled = toggleEl ? toggleEl.checked : true;
+            saveIndexDashboardEnabled(enabled);
+
+            // 保存隐身模式
+            var stealthEl = document.getElementById('stealthModeToggle');
+            stealthMode = stealthEl ? stealthEl.checked : true;
+            localStorage.setItem('stealthMode', stealthMode.toString());
+            applyStealthMode();
+
             closeIndexConfig();
-            updateIndexBar();
+            if (enabled) {
+                updateIndexBar();
+            }
         }
 
         async function updateIndexBar() {
+            // 总开关关闭时不更新
+            if (!isIndexDashboardEnabled()) {
+                document.getElementById('indexBar').classList.add('hidden');
+                return;
+            }
+            document.getElementById('indexBar').classList.remove('hidden');
+
             try {
                 var selected = getSelectedIndices();
                 var result = await requestJson('/api/indices?codes=' + selected.join(','));
@@ -1334,13 +1643,14 @@
                         if (!idx) return;
                         var change = idx.changePercent || 0;
                         var sign = change > 0 ? '+' : '';
+                        var changeClass = 'index-change' + (change > 0 ? ' index-change-up' : change < 0 ? ' index-change-down' : '');
                         var isFx = /^fx/.test(code);
                         var displayName = nameMap[code] || idx.name;
                         var decimals = isFx ? 4 : 2;
                         items += '<span class="index-item">' +
                             '<span class="index-name">' + displayName + '</span>' +
                             '<span class="index-price">' + idx.currentPrice.toFixed(decimals) + '</span>' +
-                            '<span class="index-change">(' + sign + change.toFixed(2) + '%)</span>' +
+                            '<span class="' + changeClass + '">(' + sign + change.toFixed(2) + '%)</span>' +
                         '</span>';
                     });
                     if (items) {
@@ -1406,7 +1716,7 @@
     <div class="modal-overlay" id="indexConfigModal">
         <div class="modal-dialog">
             <div class="modal-header">
-                大盘指数配置
+                看板配置
                 <button class="modal-close" onclick="closeIndexConfig()">✕</button>
             </div>
             <div class="modal-body" id="indexConfigBody"></div>
