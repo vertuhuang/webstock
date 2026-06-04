@@ -40,15 +40,18 @@ fi
 # 启动服务器
 echo ""
 echo "🌐 正在启动后端服务器..."
-echo "📡 服务地址：<ADDRESS_REMOVED>
-echo "📖 API文档：<ADDRESS_REMOVED>
+SERVER_PORT="${PORT:-3000}"
+SERVER_HOST="${HOST:-127.0.0.1}"
+SERVER_URL="http://${SERVER_HOST}:${SERVER_PORT}"
+echo "📡 服务地址：${SERVER_URL}"
+echo "📖 API健康检查：${SERVER_URL}/api/health"
 echo ""
 echo "💡 使用提示："
-echo "   1. 服务器启动后，在浏览器访问 <ADDRESS_REMOVED>
+echo "   1. 服务器启动后，在浏览器访问 ${SERVER_URL}"
 echo "   2. 在页面中添加股票代码（如 sh600519, hk00700）"
 echo "   3. 数据将每3秒自动更新"
 echo ""
-echo "⚠️  注意：请确保端口3000未被占用"
+echo "⚠️  注意：请确保端口${SERVER_PORT}未被占用"
 echo ""
 echo "按 Ctrl+C 停止服务器"
 echo ""
