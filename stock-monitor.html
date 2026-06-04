@@ -13,7 +13,7 @@
 
         body {
             font-family: "Microsoft YaHei", "微软雅黑", "SimSun", "宋体", Arial, sans-serif;
-            background: #d4d4d4;
+            background: #eee;
             color: #000000;
             font-size: 14px;
             line-height: 1.6;
@@ -27,20 +27,20 @@
             margin: 0 auto;
             background: #ffffff;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            padding: 25mm 20mm;
+            padding: 15mm 20mm 25mm 20mm;
             position: relative;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
         }
 
         .header h1 {
             font-size: 28px;
             color: #000000;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
             font-weight: bold;
         }
 
@@ -50,8 +50,181 @@
         }
 
         .add-stock-section {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
+
+        .index-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            padding: 0;
+            margin-bottom: 28px;
+            background: #fff;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .index-category-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 4px 16px;
+            padding: 8px 0;
+            border-top: 1px dashed #d0d0d0;
+        }
+
+        .index-category-group:first-child {
+            border-top: none;
+        }
+
+        .index-category-group:last-child {
+            padding-bottom: 0;
+        }
+
+        .index-item {
+            white-space: nowrap;
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+
+        .index-name {
+            color: #666;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .index-price {
+            color: #333;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        .index-change {
+            font-size: 12px;
+            flex-shrink: 0;
+            white-space: nowrap;
+            color: #666;
+        }
+
+        .input-group .index-config-btn {
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            background: #fff;
+            color: #333;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .input-group .index-config-btn:hover {
+            background: #f5f5f5;
+            border-color: #ccc;
+        }
+
+        .input-group .index-config-btn svg path {
+            stroke: #333;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.3);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-dialog {
+            background: #fff;
+            border-radius: 6px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            width: 420px;
+            max-height: 70vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 14px 18px;
+            border-bottom: 1px solid #eee;
+            font-size: 15px;
+            font-weight: bold;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            cursor: pointer;
+            font-size: 18px;
+            color: #999;
+            border: none;
+            background: none;
+            line-height: 1;
+        }
+
+        .modal-close:hover { color: #333; }
+
+        .modal-body {
+            padding: 12px 18px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-body label {
+            display: block;
+            padding: 2px 0;
+            font-size: 13px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .modal-body input[type="checkbox"] {
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        .modal-footer {
+            padding: 10px 18px;
+            border-top: 1px solid #eee;
+            text-align: right;
+        }
+
+        .modal-footer button {
+            padding: 6px 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 13px;
+            color: #333;
+            margin-left: 8px;
+        }
+
+        .modal-footer .btn-primary {
+            background: #007bff;
+            color: #fff;
+            border-color: #007bff;
+        }
+
+        .modal-footer .btn-primary:hover { background: #0056b3; }
+
 
         .input-group {
             display: flex;
@@ -62,7 +235,7 @@
         .input-group input {
             flex: 1;
             padding: 8px 12px;
-            border: 1px solid #ced4da;
+            border: 1px solid #dee2e6;
             border-radius: 4px;
             font-size: 14px;
             color: #000000;
@@ -80,7 +253,7 @@
             padding: 8px 20px;
             background: #fff;
             color: #333;
-            border: 1px solid #ccc;
+            border: 1px solid #dee2e6;
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
@@ -90,7 +263,7 @@
 
         .input-group button:hover {
             background: #f5f5f5;
-            border-color: #999;
+            border-color: #ccc;
         }
 
         .search-dropdown {
@@ -158,10 +331,15 @@
             font-size: 12px;
         }
 
+        .table-wrapper {
+            margin-top: 20px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
         .stock-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
             font-size: 12px;
             font-family: inherit;
         }
@@ -169,10 +347,13 @@
         .stock-table thead {
             background: #f8f9fa;
             color: #000000;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         .stock-table th {
-            padding: 10px 8px;
+            padding: 10px 10px;
             text-align: left;
             font-weight: normal;
             font-size: 12px;
@@ -184,12 +365,20 @@
             transition: background 0.2s;
         }
 
+        .stock-table tbody tr:nth-child(odd) {
+            background: #fff;
+        }
+
+        .stock-table tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
         .stock-table tbody tr:hover {
-            background: #f1f3f5;
+            background: #e8e8e8;
         }
 
         .stock-table td {
-            padding: 8px 8px;
+            padding: 8px 10px;
             border: 1px solid #dee2e6;
             font-size: 12px;
             color: #000000;
@@ -208,6 +397,10 @@
             font-weight: normal;
             color: #000000;
             font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
         }
 
         .stock-price {
@@ -257,6 +450,49 @@
         .delete-btn:hover {
             background: #f0f0f0;
             color: #333;
+        }
+
+        .drag-handle {
+            width: 24px;
+            height: 24px;
+            padding: 0;
+            background: none;
+            border: none;
+            border-radius: 3px;
+            cursor: grab;
+            transition: background 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #bbb;
+        }
+
+        .drag-handle:hover {
+            background: #f0f0f0;
+            color: #555;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .drag-handle svg {
+            width: 14px;
+            height: 14px;
+            display: block;
+        }
+
+        .drag-handle svg path {
+            fill: currentColor;
+        }
+
+        tr.dragging {
+            opacity: 0.3;
+            background: #f0f0f0;
+        }
+
+        tr.drag-over {
+            box-shadow: 0 -2px 0 #4a90d9 inset;
         }
 
         .empty-state {
@@ -333,39 +569,52 @@
             <div class="update-time" id="updateTime">最后更新：-</div>
         </div>
 
+        <div class="index-bar" id="indexBar">
+                <span style="color:#999;font-size:12px">加载中...</span>
+            </div>
+
         <div class="add-stock-section">
             <div class="input-group">
                 <input 
                     type="text" 
                     id="stockInput" 
-                    placeholder="输入股票代码或名称"
+                    placeholder="输入股票/基金/可转债名称或代码"
                     oninput="searchStock(this.value)"
                     onkeypress="if(event.key==='Enter') selectFirstResult()"
                 >
                 <button onclick="selectFirstResult()">添加</button>
+                <button onclick="openIndexConfig()" class="index-config-btn" title="配置指数">
+                    <svg width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.94971 11.9497H39.9497" stroke="#333" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M7.94971 23.9497H39.9497" stroke="#333" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M7.94971 35.9497H39.9497" stroke="#333" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
                 <div class="search-dropdown" id="searchDropdown"></div>
             </div>
         </div>
 
+        <div class="table-wrapper">
         <table class="stock-table" id="stockTable">
             <thead>
                 <tr>
-                    <th style="width: 30px;">#</th>
-                    <th style="width: 80px;">代码</th>
-                    <th style="width: 100px;">名称</th>
-                    <th style="width: 80px;">当前价</th>
-                    <th style="width: 80px;">最高价</th>
-                    <th style="width: 80px;">最低价</th>
-                    <th style="width: 80px;">涨跌额</th>
-                    <th style="width: 80px;">涨跌幅</th>
-                    <th style="width: 80px;">成交 (万手)</th>
-                    <th style="width: 80px;">换手率</th>
-                    <th style="width: 60px;">操作</th>
+                    <th style="width: 28px; text-align: center;">#</th>
+                    <th style="width: 75px; text-align: left;">代码</th>
+                    <th style="width: 130px; text-align: left;">名称</th>
+                    <th style="width: 72px; text-align: right;">当前价</th>
+                    <th style="width: 72px; text-align: right;">最高价</th>
+                    <th style="width: 72px; text-align: right;">最低价</th>
+                    <th style="width: 72px; text-align: right;">涨跌额</th>
+                    <th style="width: 66px; text-align: right;">涨跌幅</th>
+                    <th style="width: 78px; text-align: right;">成交(万手)</th>
+                    <th style="width: 68px; text-align: right;">换手率</th>
+                    <th style="width: 72px; text-align: center;">操作</th>
                 </tr>
             </thead>
             <tbody id="stockTableBody">
             </tbody>
         </table>
+        </div>
 
         <div class="empty-state" id="emptyState" style="display: none;">
             <p>📭 暂无监控标的</p>
@@ -385,6 +634,60 @@
             loadStocks();
             renderTable();
             startAutoUpdate();
+
+            // 拖拽排序
+            var dragSrcIndex = -1;
+            var tbody = document.getElementById('stockTableBody');
+
+            tbody.addEventListener('dragstart', function(e) {
+                var row = e.target.closest('tr');
+                if (!row) return;
+                dragSrcIndex = parseInt(row.id.replace('row-', ''));
+                row.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', dragSrcIndex.toString());
+            });
+
+            tbody.addEventListener('dragend', function(e) {
+                var row = e.target.closest('tr');
+                if (row) row.classList.remove('dragging');
+                // 清除所有拖拽状态
+                var rows = tbody.querySelectorAll('tr');
+                rows.forEach(function(r) { r.classList.remove('drag-over'); });
+                dragSrcIndex = -1;
+            });
+
+            tbody.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                var row = e.target.closest('tr');
+                if (!row || dragSrcIndex === -1) return;
+                var dstIndex = parseInt(row.id.replace('row-', ''));
+                if (dstIndex === dragSrcIndex) return;
+                // 清除之前的指示器
+                var rows = tbody.querySelectorAll('tr');
+                rows.forEach(function(r) { r.classList.remove('drag-over'); });
+                row.classList.add('drag-over');
+            });
+
+            tbody.addEventListener('dragleave', function(e) {
+                var row = e.target.closest('tr');
+                if (row) row.classList.remove('drag-over');
+            });
+
+            tbody.addEventListener('drop', function(e) {
+                e.preventDefault();
+                var row = e.target.closest('tr');
+                if (!row || dragSrcIndex === -1) return;
+                var dstIndex = parseInt(row.id.replace('row-', ''));
+                if (dstIndex === dragSrcIndex) return;
+                // 重排序
+                var item = monitoredStocks.splice(dragSrcIndex, 1)[0];
+                monitoredStocks.splice(dstIndex, 0, item);
+                localStorage.setItem('monitoredStocks', JSON.stringify(monitoredStocks));
+                renderTable();
+                dragSrcIndex = -1;
+            });
         };
 
         function requestJson(url, options) {
@@ -741,25 +1044,33 @@
 
             var html = '';
             monitoredStocks.forEach(function(code, index) {
-                html += '<tr id="row-' + index + '">' +
-                    '<td>' + (index + 1) + '</td>' +
-                    '<td><span class="stock-code">' + code.toUpperCase() + '</span></td>' +
-                    '<td><span class="stock-name" id="name-' + index + '">加载中...</span></td>' +
-                    '<td><span class="stock-price" id="price-' + index + '">-</span></td>' +
-                    '<td><span class="stock-price" id="high-' + index + '">-</span></td>' +
-                    '<td><span class="stock-price" id="low-' + index + '">-</span></td>' +
-                    '<td><span id="change-' + index + '">-</span></td>' +
-                    '<td><span id="percent-' + index + '">-</span></td>' +
-                    '<td><span class="stock-volume" id="volume-' + index + '">-</span></td>' +
-                    '<td><span id="turnover-' + index + '">-</span></td>' +
-                    '<td><button class="delete-btn" onclick="deleteStock(' + index + ')" aria-label="删除">' +
-                        '<svg width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">' +
-                            '<path d="M15 12L16.2 5H31.8L33 12" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>' +
-                            '<path d="M6 12H42" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>' +
-                            '<path fill-rule="evenodd" clip-rule="evenodd" d="M37 12L35 43H13L11 12H37Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
-                            '<path d="M19 35H29" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>' +
-                        '</svg>' +
-                    '</button></td>' +
+                html += '<tr id="row-' + index + '" draggable="true">' +
+                    '<td style="text-align: center;">' + (index + 1) + '</td>' +
+                    '<td style="text-align: left;"><span class="stock-code">' + code.toUpperCase() + '</span></td>' +
+                    '<td style="text-align: left;"><span class="stock-name" id="name-' + index + '">加载中...</span></td>' +
+                    '<td style="text-align: right;"><span class="stock-price" id="price-' + index + '">-</span></td>' +
+                    '<td style="text-align: right;"><span class="stock-price" id="high-' + index + '">-</span></td>' +
+                    '<td style="text-align: right;"><span class="stock-price" id="low-' + index + '">-</span></td>' +
+                    '<td style="text-align: right;"><span id="change-' + index + '">-</span></td>' +
+                    '<td style="text-align: right;"><span id="percent-' + index + '">-</span></td>' +
+                    '<td style="text-align: right;"><span class="stock-volume" id="volume-' + index + '">-</span></td>' +
+                    '<td style="text-align: right;"><span id="turnover-' + index + '">-</span></td>' +
+                    '<td style="text-align: center;">' +
+                        '<button class="delete-btn" onclick="deleteStock(' + index + ')" aria-label="删除">' +
+                            '<svg width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+                                '<path d="M15 12L16.2 5H31.8L33 12" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>' +
+                                '<path d="M6 12H42" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>' +
+                                '<path fill-rule="evenodd" clip-rule="evenodd" d="M37 12L35 43H13L11 12H37Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+                                '<path d="M19 35H29" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>' +
+                            '</svg>' +
+                        '</button>' +
+                        '<button class="drag-handle" aria-label="拖拽排序">' +
+                            '<svg width="14" height="14" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+                                '<path fill-rule="evenodd" clip-rule="evenodd" d="M19 10C19 12.2091 17.2091 14 15 14C12.7909 14 11 12.2091 11 10C11 7.79086 12.7909 6 15 6C17.2091 6 19 7.79086 19 10ZM15 28C17.2091 28 19 26.2091 19 24C19 21.7909 17.2091 20 15 20C12.7909 20 11 21.7909 11 24C11 26.2091 12.7909 28 15 28ZM15 42C17.2091 42 19 40.2091 19 38C19 35.7909 17.2091 34 15 34C12.7909 34 11 35.7909 11 38C11 40.2091 12.7909 42 15 42Z" fill="currentColor"/>' +
+                                '<path fill-rule="evenodd" clip-rule="evenodd" d="M37 10C37 12.2091 35.2091 14 33 14C30.7909 14 29 12.2091 29 10C29 7.79086 30.7909 6 33 6C35.2091 6 37 7.79086 37 10ZM33 28C35.2091 28 37 26.2091 37 24C37 21.7909 35.2091 20 33 20C30.7909 20 29 21.7909 29 24C29 26.2091 30.7909 28 33 28ZM33 42C35.2091 42 37 40.2091 37 38C37 35.7909 35.2091 34 33 34C30.7909 34 29 35.7909 29 38C29 40.2091 30.7909 42 33 42Z" fill="currentColor"/>' +
+                            '</svg>' +
+                        '</button>' +
+                    '</td>' +
                 '</tr>';
             });
             tbody.innerHTML = html;
@@ -837,8 +1148,184 @@
 
             updateInterval = setInterval(function() {
                 updateStockData();
+                updateIndexBar();
             }, 3000);
+            updateIndexBar();
         }
+
+        // ========= 大盘指数 =========
+        var ALL_INDICES = [
+            {code: 'sh000001', name: '上证指数',  market: 'A股'},
+            {code: 'sz399001', name: '深证成指',  market: 'A股'},
+            {code: 'sz399006', name: '创业板指',  market: 'A股'},
+            {code: 'sh000688', name: '科创50',    market: 'A股'},
+            {code: 'sh000016', name: '上证50',    market: 'A股'},
+            {code: 'bj899050', name: '北证50',    market: 'A股'},
+            {code: 'sh000300', name: '沪深300',   market: 'A股'},
+            {code: 'sh000905', name: '中证500',   market: 'A股'},
+            {code: 'sh000852', name: '中证1000',  market: 'A股'},
+            {code: 'sz399330', name: '深证100',   market: 'A股'},
+            {code: 'sz399005', name: '中小100',   market: 'A股'},
+            {code: 'sh000010', name: '上证180',   market: 'A股'},
+            {code: 'sh000903', name: '中证A100',  market: 'A股'},
+            {code: 'sz399293', name: '创业大盘',  market: 'A股'},
+            {code: 'sz399106', name: '深证综指',  market: 'A股'},
+            {code: 'sz399004', name: '深证100R',  market: 'A股'},
+            {code: 'sz399011', name: '深证1000',  market: 'A股'},
+            {code: 'sz399012', name: '创业300',   market: 'A股'},
+            {code: 'sh000842', name: '800等权',   market: 'A股'},
+            {code: 'sh000827', name: '中证环保',  market: '行业板块'},
+            {code: 'sh000849', name: '300非银',   market: '行业板块'},
+            {code: 'sh000932', name: '中证消费',  market: '行业板块'},
+            {code: 'sh000941', name: '新能源',    market: '行业板块'},
+            {code: 'sh000979', name: '大宗商品',  market: '行业板块'},
+            {code: 'sh000990', name: '全指消费',  market: '行业板块'},
+            {code: 'sh000991', name: '全指医药',  market: '行业板块'},
+            {code: 'sh000993', name: '全指信息',  market: '行业板块'},
+            {code: 'sz399015', name: '中小创新',  market: '行业板块'},
+            {code: 'sz399017', name: 'SME创新',   market: '行业板块'},
+            {code: 'hkHSI',    name: '恒生指数',  market: '港股'},
+            {code: 'hkHSTECH', name: '恒生科技',  market: '港股'},
+            {code: 'hkHSCEI',  name: '国企指数',  market: '港股'},
+            {code: 'hkHSCCI',  name: '红筹指数',  market: '港股'},
+            {code: 'usDJI',    name: '道琼斯',    market: '美股'},
+            {code: 'usIXIC',   name: '纳斯达克',  market: '美股'},
+            {code: 'usINX',    name: '标普500',   market: '美股'},
+            {code: 'usNDX',    name: '纳指100',   market: '美股'},
+            {code: 'fuGC',     name: 'COMEX黄金', market: '商品'},
+            {code: 'fuCL',     name: 'WTI原油',   market: '商品'},
+            {code: 'fuSI',     name: 'COMEX白银', market: '商品'},
+            {code: 'fuHG',     name: 'COMEX铜',   market: '商品'},
+            {code: 'fuNG',     name: '天然气',    market: '商品'},
+            {code: 'fuZC',     name: 'CBOT玉米',  market: '商品'},
+            {code: 'fuRB',     name: '汽油',      market: '商品'},
+            {code: 'fxUSDCNY', name: '美元兑人民币',   market: '汇率'},
+            {code: 'fxHKDCNY', name: '港币兑人民币',   market: '汇率'},
+            {code: 'fxHKDUSD', name: '港币兑美元',     market: '汇率'},
+            {code: 'fxTWDCNY', name: '台币兑人民币',   market: '汇率'},
+            {code: 'fxEURCNY', name: '欧元兑人民币',   market: '汇率'},
+            {code: 'fxJPYCNY', name: '日元兑人民币',   market: '汇率'},
+            {code: 'fxKRWCNY', name: '韩元兑人民币',   market: '汇率'},
+            {code: 'fxSGDCNY', name: '新加坡币兑人民币', market: '汇率'},
+            {code: 'fxTHBCNY', name: '泰铢兑人民币',   market: '汇率'},
+            {code: 'fxVNDCNY', name: '越南盾兑人民币', market: '汇率'},
+            {code: 'fxIDRCNY', name: '印尼盾兑人民币', market: '汇率'},
+            {code: 'fxJPYCNY', name: '日元/人民币', market: '汇率'},
+            {code: 'sh000012', name: '国债指数',   market: '债券'},
+            {code: 'sh000013', name: '企债指数',   market: '债券'}
+        ];
+
+        var DEFAULT_INDICES = ['sh000001','sz399001','sz399006','hkHSI','hkHSTECH','sh000300','sh000905'];
+
+        function getSelectedIndices() {
+            var saved = localStorage.getItem('selectedIndices');
+            if (saved) {
+                try { return JSON.parse(saved); } catch(e) {}
+            }
+            return DEFAULT_INDICES.slice();
+        }
+
+        function saveSelectedIndices(codes) {
+            localStorage.setItem('selectedIndices', JSON.stringify(codes));
+        }
+
+        function openIndexConfig() {
+            var selected = getSelectedIndices();
+            var body = document.getElementById('indexConfigBody');
+            var html = '';
+
+            var groups = {};
+            ALL_INDICES.forEach(function(idx) {
+                if (!groups[idx.market]) groups[idx.market] = [];
+                groups[idx.market].push(idx);
+            });
+
+            var marketOrder = ['A股','行业板块','港股','美股','商品','汇率','债券'];
+            marketOrder.forEach(function(market) {
+                var list = groups[market];
+                if (!list) return;
+                html += '<div style="font-size:12px;color:#999;margin-top:22px;margin-bottom:6px">' + market + '</div>';
+                html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px 8px">';
+                list.forEach(function(idx) {
+                    var checked = selected.indexOf(idx.code) !== -1 ? ' checked' : '';
+                    html += '<label><input type="checkbox" value="' + idx.code + '"' + checked + '>' + idx.name + '</label>';
+                });
+                html += '</div>';
+            });
+
+            body.innerHTML = html;
+            document.getElementById('indexConfigModal').classList.add('show');
+        }
+
+        function closeIndexConfig() {
+            document.getElementById('indexConfigModal').classList.remove('show');
+        }
+
+        function saveIndexConfig() {
+            var checks = document.querySelectorAll('#indexConfigBody input[type=checkbox]:checked');
+            var codes = [];
+            checks.forEach(function(cb) { codes.push(cb.value); });
+            if (codes.length === 0) {
+                alert('至少选择一个指数');
+                return;
+            }
+            saveSelectedIndices(codes);
+            closeIndexConfig();
+            updateIndexBar();
+        }
+
+        async function updateIndexBar() {
+            try {
+                var result = await requestJson('/api/indices');
+                if (!result.success || !result.data) return;
+
+                var selected = getSelectedIndices();
+                var indexMap = {};
+                result.data.forEach(function(idx) {
+                    indexMap[idx.code.toLowerCase()] = idx;
+                });
+
+                var bar = document.getElementById('indexBar');
+                var html = '';
+
+                var marketOrder = ['A股','行业板块','港股','美股','商品','汇率','债券'];
+                var marketGroups = {};
+                selected.forEach(function(code) {
+                    var found = ALL_INDICES.find(function(item) { return item.code === code; });
+                    var market = found ? found.market : '其他';
+                    if (!marketGroups[market]) marketGroups[market] = [];
+                    marketGroups[market].push(code);
+                });
+
+                marketOrder.forEach(function(market) {
+                    var codes = marketGroups[market];
+                    if (!codes || codes.length === 0) return;
+                    var items = '';
+                    codes.forEach(function(code) {
+                        var idx = indexMap[code.toLowerCase()];
+                        if (!idx) return;
+                        var change = idx.changePercent || 0;
+                        var sign = change > 0 ? '+' : '';
+                        items += '<span class="index-item">' +
+                            '<span class="index-name">' + idx.name + '</span>' +
+                            '<span class="index-price">' + idx.currentPrice.toFixed(2) + '</span>' +
+                            '<span class="index-change">(' + sign + change.toFixed(2) + '%)</span>' +
+                        '</span>';
+                    });
+                    if (items) {
+                        html += '<div class="index-category-group">' + items + '</div>';
+                    }
+                });
+
+                bar.innerHTML = html || '<span style="color:#999;font-size:12px">请点击 ⚙ 配置指数</span>';
+            } catch (e) {
+                console.error('大盘数据获取失败:', e);
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            if (e.target.id === 'indexConfigModal') closeIndexConfig();
+        });
 
         window.onbeforeunload = function() {
             if (updateInterval) {
@@ -884,5 +1371,20 @@
             }
         });
     </script>
+
+    <div class="modal-overlay" id="indexConfigModal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                大盘指数配置
+                <button class="modal-close" onclick="closeIndexConfig()">✕</button>
+            </div>
+            <div class="modal-body" id="indexConfigBody"></div>
+            <div class="modal-footer">
+                <button onclick="closeIndexConfig()">取消</button>
+                <button class="btn-primary" onclick="saveIndexConfig()">确定</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

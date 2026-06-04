@@ -29373,5 +29373,325 @@
     "code": "hk02400",
     "name": "心动公司",
     "market": "hk"
+  },
+  {
+    "code": "sh110001",
+    "name": "邯钢转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh110020",
+    "name": "南山转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh110040",
+    "name": "生益转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh110060",
+    "name": "天路转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh110080",
+    "name": "东湖转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh110100",
+    "name": "龙建转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh110219",
+    "name": "南山转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh110227",
+    "name": "赤化转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh110317",
+    "name": "营港转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh110325",
+    "name": "华发转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh110368",
+    "name": "五洲转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh110398",
+    "name": "凯诺转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh110418",
+    "name": "江淮转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh110423",
+    "name": "柳化转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh110488",
+    "name": "天药转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh110567",
+    "name": "山鹰转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh110598",
+    "name": "大荒转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh110800",
+    "name": "赛腾定转",
+    "market": "sh"
+  },
+  {
+    "code": "sh110874",
+    "name": "创业转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh110971",
+    "name": "恒源转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh113001",
+    "name": "中行转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh113020",
+    "name": "桐昆转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh113040",
+    "name": "星宇转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh113060",
+    "name": "浙22转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh113501",
+    "name": "洛钼转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh113520",
+    "name": "百合转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh113540",
+    "name": "南威转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh113561",
+    "name": "正裕转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh113580",
+    "name": "康隆转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh113600",
+    "name": "新星转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh113620",
+    "name": "傲农转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh113640",
+    "name": "苏利转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh113660",
+    "name": "寿22转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh113680",
+    "name": "丽岛转债",
+    "market": "sh"
+  },
+  {
+    "code": "sh113700",
+    "name": "海天转债",
+    "market": "sh"
+  },
+  {
+    "code": "sz123001",
+    "name": "蓝标转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz123020",
+    "name": "富祥转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz123040",
+    "name": "乐普转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz123060",
+    "name": "苏试转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz123080",
+    "name": "海波转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz123100",
+    "name": "朗科转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz123120",
+    "name": "隆华转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz123140",
+    "name": "天地转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz123160",
+    "name": "泰福转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz123180",
+    "name": "浙矿转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz123200",
+    "name": "海泰转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz123220",
+    "name": "易瑞转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz123240",
+    "name": "楚天转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz123260",
+    "name": "卓镁转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz127001",
+    "name": "海直转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz127020",
+    "name": "中金转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz127040",
+    "name": "国泰转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz127060",
+    "name": "湘佳转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz127080",
+    "name": "声迅转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz127100",
+    "name": "神码转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz128001",
+    "name": "泰尔转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz128020",
+    "name": "水晶转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz128040",
+    "name": "华通转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz128060",
+    "name": "中装转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz128080",
+    "name": "顺丰转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz128100",
+    "name": "搜特转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz128120",
+    "name": "联诚转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz128140",
+    "name": "润建转债",
+    "market": "sz"
+  },
+  {
+    "code": "sz128233",
+    "name": "塔牌转债",
+    "market": "sz"
   }
 ]

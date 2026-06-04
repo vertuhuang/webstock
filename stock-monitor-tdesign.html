@@ -200,6 +200,93 @@
         }
 
         /* ============================================
+           分段式 Tab - TDesign Segmented 风格
+           ============================================ */
+        .segmented-section {
+            padding: 16px 40px;
+            border-bottom: 1px solid var(--td-border-level-1-color);
+            transition: all var(--td-anim-time-base) ease;
+        }
+
+        .segmented-section.hidden {
+            display: none;
+        }
+
+        .segmented-control {
+            display: inline-flex;
+            background: var(--td-bg-color-page);
+            border-radius: var(--td-radius-round);
+            padding: 2px;
+            gap: 0;
+        }
+
+        .segmented-item {
+            position: relative;
+            padding: 6px 16px;
+            font-size: var(--td-font-size-body-medium);
+            font-weight: var(--td-font-weight-medium);
+            color: var(--td-text-color-secondary);
+            cursor: pointer;
+            border-radius: var(--td-radius-round);
+            transition: all var(--td-anim-time-base) ease;
+            user-select: none;
+            white-space: nowrap;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            line-height: var(--td-line-height-body-medium);
+        }
+
+        .segmented-item:hover {
+            color: var(--td-text-color-primary);
+        }
+
+        .segmented-item.active {
+            background: var(--td-bg-color-container);
+            color: var(--td-brand-color);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        }
+
+        .segmented-item .segmented-badge {
+            display: inline-block;
+            min-width: 18px;
+            height: 18px;
+            line-height: 18px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: var(--td-font-weight-medium);
+            color: var(--td-text-color-placeholder);
+            background: var(--td-bg-color-container-hover);
+            border-radius: var(--td-radius-round);
+            padding: 0 5px;
+            margin-left: 4px;
+            transition: all var(--td-anim-time-base) ease;
+        }
+
+        .segmented-item.active .segmented-badge {
+            color: var(--td-brand-color);
+            background: var(--td-brand-color-light);
+        }
+
+        @media (max-width: 768px) {
+            .segmented-section {
+                padding: 12px 20px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .segmented-control {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .segmented-item {
+                padding: 6px 12px;
+                font-size: var(--td-font-size-body-small);
+            }
+        }
+
+        /* ============================================
            添加股票区域 - TDesign 输入组风格
            ============================================ */
         .add-stock-section {
@@ -626,6 +713,30 @@
                 </div>
             </div>
 
+            <!-- 分段式 Tab 切换 -->
+            <div class="segmented-section hidden" id="segmentedSection">
+                <div class="segmented-control" id="segmentedControl">
+                    <button class="segmented-item active" data-category="all" onclick="switchCategory('all')">
+                        全部<span class="segmented-badge" id="badge-all">0</span>
+                    </button>
+                    <button class="segmented-item" data-category="ashare" onclick="switchCategory('ashare')">
+                        A股<span class="segmented-badge" id="badge-ashare">0</span>
+                    </button>
+                    <button class="segmented-item" data-category="hk" onclick="switchCategory('hk')">
+                        港股<span class="segmented-badge" id="badge-hk">0</span>
+                    </button>
+                    <button class="segmented-item" data-category="us" onclick="switchCategory('us')">
+                        美股<span class="segmented-badge" id="badge-us">0</span>
+                    </button>
+                    <button class="segmented-item" data-category="fund" onclick="switchCategory('fund')">
+                        基金<span class="segmented-badge" id="badge-fund">0</span>
+                    </button>
+                    <button class="segmented-item" data-category="bond" onclick="switchCategory('bond')">
+                        可转债<span class="segmented-badge" id="badge-bond">0</span>
+                    </button>
+                </div>
+            </div>
+
             <!-- 添加股票区域 -->
             <div class="add-stock-section">
                 <div class="section-header">
@@ -689,6 +800,7 @@
         let updateInterval = null;
         let stockDatabase = []; // 股票数据库
         let currentSearchResults = []; // 当前搜索结果
+        let currentCategory = 'all'; // 当前选中的分类
 
         // 页面加载时初始化
         window.onload = function() {
@@ -926,6 +1038,97 @@
             localStorage.setItem('monitoredStocks', JSON.stringify(monitoredStocks));
         }
 
+        // 根据股票代码判断所属分类
+        function getStockCategory(code) {
+            const lower = String(code).toLowerCase();
+            // A股：沪市sh、深市sz、北交所bj
+            if (lower.startsWith('sh') || lower.startsWith('sz') || lower.startsWith('bj')) return 'ashare';
+            // 港股
+            if (lower.startsWith('hk')) return 'hk';
+            // 美股
+            if (lower.startsWith('us')) return 'us';
+            // 基金（etf前缀或在数据库中标为etf）
+            if (lower.startsWith('etf') || lower.startsWith('fund')) return 'fund';
+            // 可转债
+            if (lower.startsWith('bond') || lower.startsWith('cb')) return 'bond';
+            // 数据库查找
+            const found = stockDatabase.find(s => s.code.toLowerCase() === lower);
+            if (found) {
+                if (found.market === 'etf') return 'fund';
+                if (found.market === 'bond') return 'bond';
+                if (found.market === 'sh' || found.market === 'sz' || found.market === 'bj') return 'ashare';
+                if (found.market === 'hk') return 'hk';
+                if (found.market === 'us') return 'us';
+            }
+            return 'ashare'; // 默认归为A股
+        }
+
+        // 获取当前分类下的股票代码列表
+        function getFilteredStocks() {
+            if (currentCategory === 'all') return [...monitoredStocks];
+            return monitoredStocks.filter(code => getStockCategory(code) === currentCategory);
+        }
+
+        // 切换分类
+        function switchCategory(category) {
+            // 如果该分类 Tab 已隐藏（无数据），不切换
+            const tab = document.querySelector('.segmented-item[data-category="' + category + '"]');
+            if (!tab || !tab.offsetParent) return;
+            currentCategory = category;
+            document.querySelectorAll('.segmented-item').forEach(el => {
+                el.classList.toggle('active', el.dataset.category === category);
+            });
+            renderTable();
+        }
+
+        // 更新各分类数字角标、控制整个分段式 Tab 的显隐及各分类 Tab 的显隐
+        function updateBadges() {
+            const counts = { all: monitoredStocks.length, ashare: 0, hk: 0, us: 0, fund: 0, bond: 0 };
+            monitoredStocks.forEach(code => {
+                const cat = getStockCategory(code);
+                if (counts[cat] !== undefined) counts[cat]++;
+            });
+
+            const section = document.getElementById('segmentedSection');
+            if (!section) return;
+
+            // 无任何标的 → 整个分段式隐藏
+            if (monitoredStocks.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            // 统计有数据的分类数量（排除"全部"）
+            const activeCategories = Object.keys(counts).filter(k => k !== 'all' && counts[k] > 0);
+            // 仅一个分类（且"全部"非唯一）→ 整个分段式隐藏
+            if (activeCategories.length <= 1) {
+                section.classList.add('hidden');
+                // 确保当前分类切到"全部"
+                if (currentCategory !== 'all') {
+                    currentCategory = 'all';
+                    document.querySelectorAll('.segmented-item').forEach(el => {
+                        el.classList.toggle('active', el.dataset.category === 'all');
+                    });
+                }
+                return;
+            }
+
+            // 多分类 → 显示分段式，且只显示有数据的 Tab
+            section.classList.remove('hidden');
+            document.querySelectorAll('.segmented-item').forEach(el => {
+                const cat = el.dataset.category;
+                const count = counts[cat] || 0;
+                el.style.display = (count > 0) ? '' : 'none';
+                const badge = el.querySelector('.segmented-badge');
+                if (badge) badge.textContent = count;
+            });
+
+            // 如果当前分类没有数据了，自动切回"全部"
+            if (counts[currentCategory] === 0) {
+                switchCategory('all');
+            }
+        }
+
         // 添加股票（直接输入代码）
         async function addStockDirect() {
             const input = document.getElementById('stockInput');
@@ -990,9 +1193,12 @@
             return pattern.test(code);
         }
 
-        // 删除股票
-        function deleteStock(index) {
-            monitoredStocks.splice(index, 1);
+        // 删除股票（按代码）
+        function deleteStockByCode(code) {
+            const idx = monitoredStocks.indexOf(code);
+            if (idx !== -1) {
+                monitoredStocks.splice(idx, 1);
+            }
             saveStocks();
             renderTable();
         }
@@ -1002,31 +1208,38 @@
             const tbody = document.getElementById('stockTableBody');
             const emptyState = document.getElementById('emptyState');
             const table = document.getElementById('stockTable');
+            const filtered = getFilteredStocks();
 
-            if (monitoredStocks.length === 0) {
+            // 更新角标
+            updateBadges();
+
+            if (filtered.length === 0) {
                 tbody.innerHTML = '';
                 emptyState.style.display = 'block';
                 table.style.display = 'none';
+                // 根据当前分类显示不同的空状态文案
+                const catNames = { all: '暂无监控标的', ashare: '暂无A股标的', hk: '暂无港股标的', us: '暂无美股标的', fund: '暂无基金标的', bond: '暂无可转债标的' };
+                emptyState.querySelector('.empty-title').textContent = catNames[currentCategory] || '暂无监控标的';
+                emptyState.querySelector('.empty-desc').textContent = currentCategory === 'all' ? '请在上方输入框中添加股票代码或名称' : '请切换分类或在上方输入框中添加标的';
                 return;
             }
 
             emptyState.style.display = 'none';
             table.style.display = 'table';
 
-            // 创建占位行（数据将通过AJAX更新）
             let html = '';
-            monitoredStocks.forEach((code, index) => {
+            filtered.forEach((code, index) => {
                 html += `
-                    <tr id="row-${index}">
+                    <tr id="row-${code.replace(/[^a-zA-Z0-9]/g, '_')}" data-code="${code}">
                         <td style="text-align: center; color: var(--td-text-color-secondary); font-size: var(--td-font-size-body-small);">${index + 1}</td>
                         <td><span class="stock-code">${code.toUpperCase()}</span></td>
-                        <td><span class="stock-name" id="name-${index}">加载中...</span></td>
-                        <td style="text-align: right;"><span class="stock-price" id="price-${index}">-</span></td>
-                        <td style="text-align: right;"><span id="change-${index}">-</span></td>
-                        <td style="text-align: right;"><span id="percent-${index}">-</span></td>
-                        <td style="text-align: right;"><span class="stock-volume" id="volume-${index}">-</span></td>
-                        <td style="text-align: right;"><span id="turnover-${index}">-</span></td>
-                        <td style="text-align: center;"><button class="delete-btn" onclick="deleteStock(${index})">删除</button></td>
+                        <td><span class="stock-name" id="name-${code.replace(/[^a-zA-Z0-9]/g, '_')}">加载中...</span></td>
+                        <td style="text-align: right;"><span class="stock-price" id="price-${code.replace(/[^a-zA-Z0-9]/g, '_')}">-</span></td>
+                        <td style="text-align: right;"><span id="change-${code.replace(/[^a-zA-Z0-9]/g, '_')}">-</span></td>
+                        <td style="text-align: right;"><span id="percent-${code.replace(/[^a-zA-Z0-9]/g, '_')}">-</span></td>
+                        <td style="text-align: right;"><span class="stock-volume" id="volume-${code.replace(/[^a-zA-Z0-9]/g, '_')}">-</span></td>
+                        <td style="text-align: right;"><span id="turnover-${code.replace(/[^a-zA-Z0-9]/g, '_')}">-</span></td>
+                        <td style="text-align: center;"><button class="delete-btn" onclick="deleteStockByCode('${code}')">删除</button></td>
                     </tr>
                 `;
             });
@@ -1036,12 +1249,12 @@
             updateStockData();
         }
 
-        // 更新股票数据
+        // 更新股票数据（始终请求全部，但只更新当前分类显示的行）
         async function updateStockData() {
             if (monitoredStocks.length === 0) return;
 
+            // 用全部股票请求数据
             try {
-                // 调用后端API
                 const result = await requestJson('/api/stocks', {
                     method: 'POST',
                     headers: {
@@ -1051,50 +1264,55 @@
                 });
 
                 if (result.success) {
-                    // 更新表格数据
                     updateTableData(result.data);
-
-                    // 更新时间
                     const now = new Date();
                     const timeStr = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                     const updateTimeEl = document.getElementById('updateTime');
-                    updateTimeEl.textContent = `最后更新：${timeStr}`;
+                    updateTimeEl.textContent = '最后更新：' + timeStr;
                     updateTimeEl.classList.remove('error');
                 } else {
                     throw new Error(result.error || '未知错误');
                 }
-
             } catch (error) {
                 console.error('更新数据失败：', error);
                 const updateTimeEl = document.getElementById('updateTime');
-                updateTimeEl.textContent = `更新失败：${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+                updateTimeEl.textContent = '更新失败：' + new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                 updateTimeEl.classList.add('error');
             }
         }
 
-        // 更新表格数据
+        // 更新表格数据（按code匹配）
         function updateTableData(stocksData) {
-            stocksData.forEach((stock, index) => {
-                if (!document.getElementById(`row-${index}`)) return;
+            stocksData.forEach(stock => {
+                const safeCode = stock.code.replace(/[^a-zA-Z0-9]/g, '_');
+                const row = document.getElementById('row-' + safeCode);
+                if (!row) return; // 该股票不在当前分类中显示，跳过
 
-                // 更新各字段
-                document.getElementById(`name-${index}`).textContent = stock.name;
-                
-                const priceEl = document.getElementById(`price-${index}`);
-                priceEl.textContent = stock.currentPrice.toFixed(2);
-                
-                const changeEl = document.getElementById(`change-${index}`);
-                const changeVal = stock.change;
-                changeEl.textContent = (changeVal >= 0 ? '+' : '') + changeVal.toFixed(2);
-                changeEl.className = changeVal > 0 ? 'stock-change-up' : changeVal < 0 ? 'stock-change-down' : 'stock-change-flat';
-                
-                const percentEl = document.getElementById(`percent-${index}`);
-                const percentVal = stock.changePercent;
-                percentEl.textContent = (percentVal >= 0 ? '+' : '') + percentVal.toFixed(2) + '%';
-                percentEl.className = percentVal > 0 ? 'stock-change-up' : percentVal < 0 ? 'stock-change-down' : 'stock-change-flat';
-                
-                document.getElementById(`volume-${index}`).textContent = formatVolume(stock.volume);
-                document.getElementById(`turnover-${index}`).textContent = stock.turnoverRate.toFixed(2) + '%';
+                const nameEl = document.getElementById('name-' + safeCode);
+                if (nameEl) nameEl.textContent = stock.name;
+
+                const priceEl = document.getElementById('price-' + safeCode);
+                if (priceEl) priceEl.textContent = stock.currentPrice.toFixed(2);
+
+                const changeEl = document.getElementById('change-' + safeCode);
+                if (changeEl) {
+                    const changeVal = stock.change;
+                    changeEl.textContent = (changeVal >= 0 ? '+' : '') + changeVal.toFixed(2);
+                    changeEl.className = changeVal > 0 ? 'stock-change-up' : changeVal < 0 ? 'stock-change-down' : 'stock-change-flat';
+                }
+
+                const percentEl = document.getElementById('percent-' + safeCode);
+                if (percentEl) {
+                    const percentVal = stock.changePercent;
+                    percentEl.textContent = (percentVal >= 0 ? '+' : '') + percentVal.toFixed(2) + '%';
+                    percentEl.className = percentVal > 0 ? 'stock-change-up' : percentVal < 0 ? 'stock-change-down' : 'stock-change-flat';
+                }
+
+                const volumeEl = document.getElementById('volume-' + safeCode);
+                if (volumeEl) volumeEl.textContent = formatVolume(stock.volume);
+
+                const turnoverEl = document.getElementById('turnover-' + safeCode);
+                if (turnoverEl) turnoverEl.textContent = stock.turnoverRate.toFixed(2) + '%';
             });
         }
 

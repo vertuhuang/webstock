@@ -7,7 +7,7 @@ const fs = require('fs');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
-const HOST = process.env.HOST || '127.0.0.1';
+const HOST = process.env.HOST || '0.0.0.0';
 
 app.use(cors());
 app.use(express.json());
@@ -181,23 +181,206 @@ function broadcastToSSEClients(stocks) {
 }
 
 // ========= API调用函数 =========
+// 分类获取：A股用腾讯（实时），港美股用新浪（实时）
 async function fetchStockDataFromAPI(codes) {
     const normalizedCodes = codes.map(normalizeCode);
-    const codesStr = normalizedCodes.join(',');
-    const url = 'http://qt.gtimg.cn/q=' + codesStr;
+    const tencentCodes = [];
+    const sinaHkCodes = [];
+    const sinaUsCodes = [];
 
-    try {
-        const response = await axios.get(url, {
-            responseType: 'arraybuffer',
-            timeout: 10000
-        });
+    normalizedCodes.forEach(function(code) {
+        if (/^hk/.test(code)) {
+            sinaHkCodes.push(code);
+        } else if (/^us/.test(code)) {
+            sinaUsCodes.push(code);
+        } else {
+            tencentCodes.push(code);
+        }
+    });
 
-        const data = iconv.decode(response.data, 'gbk');
-        return completeStocks(normalizedCodes, parseStockData(data));
-    } catch (error) {
-        console.error('[Stock API] Fetch failed, using local fallback:', error.message);
-        return completeStocks(normalizedCodes, []);
+    var results = [];
+
+    // 腾讯：A股（实时）
+    if (tencentCodes.length > 0) {
+        try {
+            const codesStr = tencentCodes.join(',');
+            const url = 'http://qt.gtimg.cn/q=' + codesStr;
+            const response = await axios.get(url, {
+                responseType: 'arraybuffer',
+                timeout: 10000
+            });
+            const data = iconv.decode(response.data, 'gbk');
+            results = results.concat(parseStockData(data));
+        } catch (error) {
+            console.error('[Tencent API] A股获取失败:', error.message);
+        }
     }
+
+    // 新浪：港股（实时）
+    if (sinaHkCodes.length > 0) {
+        try {
+            const hkStocks = await fetchFromSinaHK(sinaHkCodes);
+            results = results.concat(hkStocks);
+        } catch (error) {
+            console.error('[Sina API] 港股获取失败:', error.message);
+        }
+    }
+
+    // 新浪：美股（实时）
+    if (sinaUsCodes.length > 0) {
+        try {
+            const usStocks = await fetchFromSinaUS(sinaUsCodes);
+            results = results.concat(usStocks);
+        } catch (error) {
+            console.error('[Sina API] 美股获取失败:', error.message);
+        }
+    }
+
+    return completeStocks(normalizedCodes, results);
+}
+
+async function fetchFromSinaHK(codes) {
+    const symbols = codes.map(function(c) { return 'rt_hk' + c.replace(/^hk/, ''); }).join(',');
+    const url = 'https://hq.sinajs.cn/list=' + symbols;
+
+    const response = await axios.get(url, {
+        responseType: 'arraybuffer',
+        timeout: 10000,
+        headers: {
+            'User-Agent': 'Mozilla/5.0',
+            'Referer': 'https://finance.sina.com.cn/'
+        }
+    });
+
+    const data = iconv.decode(response.data, 'gbk');
+    const stocks = [];
+
+    const lines = data.split('\n');
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i].trim();
+        if (!line || line.indexOf('=') === -1) continue;
+
+        try {
+            var codeMatch = line.match(/rt_hk(\d+)=/);
+            if (!codeMatch) continue;
+            var code = 'hk' + codeMatch[1];
+
+            var match = line.match(/="(.+)"/);
+            if (!match) continue;
+
+            var fields = match[1].split(',');
+            if (fields.length < 13) continue;
+
+            // 新浪 rt_hk 字段:
+            // 0=英文名, 1=中文名, 2=今开, 3=昨收, 4=最高, 5=最低
+            // 6=最新价, 7=涨跌额, 8=涨跌幅%, 11=成交额, 12=成交量(股)
+            // 换手率：从腾讯补充数据中获取（腾讯虽延迟但股本数据是静态的）
+            stocks.push({
+                code: code,
+                name: fields[1] || fields[0] || '',
+                currentPrice: parseFloat(fields[6]) || 0,
+                highPrice: parseFloat(fields[4]) || 0,
+                lowPrice: parseFloat(fields[5]) || 0,
+                change: parseFloat(fields[7]) || 0,
+                changePercent: parseFloat(fields[8]) || 0,
+                volume: parseInt(fields[12]) || 0,
+                turnoverRate: 0  // 换手率后续从腾讯补
+            });
+        } catch (e) {
+            console.error('[Sina HK] Parse error:', e.message);
+        }
+    }
+
+    // 补充腾讯数据获取换手率（腾讯虽延迟，但换手率变化慢，可接受）
+    if (stocks.length > 0) {
+        try {
+            const tencentCodes = stocks.map(function(s) { return s.code; }).join(',');
+            const tencentUrl = 'http://qt.gtimg.cn/q=' + tencentCodes;
+            const tencentResp = await axios.get(tencentUrl, {
+                responseType: 'arraybuffer',
+                timeout: 8000
+            });
+            const tencentData = iconv.decode(tencentResp.data, 'gbk');
+            const tencentStocks = parseStockData(tencentData);
+            
+            // 用腾讯的换手率覆盖新浪数据
+            const tencentMap = {};
+            tencentStocks.forEach(function(ts) {
+                tencentMap[normalizeCode(ts.code)] = ts;
+            });
+            stocks.forEach(function(s) {
+                var key = normalizeCode(s.code);
+                var ts = tencentMap[key];
+                if (ts && ts.turnoverRate > 0) {
+                    s.turnoverRate = ts.turnoverRate;
+                }
+            });
+        } catch (e) {
+            console.error('[Sina HK] 腾讯补数据失败:', e.message);
+        }
+    }
+
+    console.log(`[Sina HK] 获取 ${stocks.length} 只港股`);
+    return stocks;
+}
+
+async function fetchFromSinaUS(codes) {
+    const symbols = codes.map(function(c) { return 'gb_' + c.replace(/^us/i, '').toLowerCase(); }).join(',');
+    const url = 'https://hq.sinajs.cn/list=' + symbols;
+
+    const response = await axios.get(url, {
+        responseType: 'arraybuffer',
+        timeout: 10000,
+        headers: {
+            'User-Agent': 'Mozilla/5.0',
+            'Referer': 'https://finance.sina.com.cn/'
+        }
+    });
+
+    const data = iconv.decode(response.data, 'gbk');
+    const stocks = [];
+
+    const lines = data.split('\n');
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i].trim();
+        if (!line || line.indexOf('=') === -1) continue;
+
+        try {
+            var codeMatch = line.match(/gb_(\w+)=/);
+            if (!codeMatch) continue;
+            var ticker = codeMatch[1].toUpperCase();
+            var code = 'us' + ticker;
+
+            var match = line.match(/="(.+)"/);
+            if (!match) continue;
+
+            var fields = match[1].split(',');
+            if (fields.length < 10) continue;
+
+            // 新浪 gb_ 字段:
+            // 0=名称, 1=最新价, 2=涨跌幅%, 3=时间, 4=涨跌额
+            // 5=未知, 6=最高(昨收?), 7=今开(最高?), 8=最低
+            // Actually let me check with AAPL:
+            // 苹果,310.2600,-1.57,2026-06-04 09:30:11,-4.9400,314.1750,316.9400,308.8500,...
+            // 0=name, 1=price, 2=change%, 3=time, 4=change$, 5=?, 6=?, 7=?, 8=?
+            stocks.push({
+                code: code,
+                name: fields[0] || ticker,
+                currentPrice: parseFloat(fields[1]) || 0,
+                highPrice: 0,
+                lowPrice: 0,
+                change: parseFloat(fields[4]) || 0,
+                changePercent: parseFloat(fields[2]) || 0,
+                volume: 0,
+                turnoverRate: 0
+            });
+        } catch (e) {
+            console.error('[Sina US] Parse error:', e.message);
+        }
+    }
+
+    console.log(`[Sina US] 获取 ${stocks.length} 只美股`);
+    return stocks;
 }
 
 // 获取缓存的股票数据（如果缓存过期则调用API）
@@ -297,6 +480,70 @@ async function searchStocksFromAPI(keyword) {
     return [];
 }
 
+// ========= 搜索可转债API（东方财富搜索）=========
+async function searchKZZFromEastMoney(keyword) {
+    const url = 'https://searchadapter.eastmoney.com/api/suggest/get';
+    const params = {
+        input: keyword,
+        type: 14,
+        count: 10
+    };
+    
+    try {
+        const response = await axios.get(url, {
+            params: params,
+            timeout: 5000,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+                'Referer': 'https://www.eastmoney.com/'
+            }
+        });
+        
+        if (response.status === 200 && response.data) {
+            const data = response.data;
+            const items = data.QuotationCodeTable && data.QuotationCodeTable.Data;
+            if (!items || items.length === 0) return [];
+            
+            const results = [];
+            const seen = new Set();
+            
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                const code = item.Code;
+                const name = item.Name;
+                const marketType = item.MarketType; // 1=sh, 2=sz, 5=hk
+                const secType = item.SecurityTypeName;
+                
+                // 只保留可转债（债券类型且代码以11/12开头）
+                if (!code || !name) continue;
+                var isKZZ = /^1[12]/.test(code);
+                if (!isKZZ) continue;
+                
+                var prefix = marketType === '1' ? 'sh' : marketType === '2' ? 'sz' : '';
+                if (!prefix) continue;
+                
+                var fullCode = prefix + code;
+                if (seen.has(fullCode)) continue;
+                seen.add(fullCode);
+                
+                results.push({
+                    code: fullCode,
+                    name: name,
+                    market: prefix,
+                    source: 'remote'
+                });
+            }
+            
+            return results;
+        }
+    } catch (error) {
+        console.error('[KZZ Search API] Error:', error.message);
+        return [];
+    }
+    
+    return [];
+}
+
 // ========= SSE端点：/api/stream =========
 app.get('/api/stream', function(req, res) {
     // 设置SSE头
@@ -356,14 +603,57 @@ app.get('/api/search-stocks', async function(req, res) {
             return res.json({success: true, data: []});
         }
         
-        console.log(`[Search] Remote search for: ${keyword}`);
-        const results = await searchStocksFromAPI(keyword.trim());
+        console.log('[Search] Remote search for: ' + keyword);
+        var results = await searchStocksFromAPI(keyword.trim());
         
-        console.log(`[Search] Found ${results.length} results`);
+        // smartbox 未找到结果时，尝试东方财富可转债搜索
+        if (results.length === 0) {
+            results = await searchKZZFromEastMoney(keyword.trim());
+        }
+        
+        console.log('[Search] Found ' + results.length + ' results');
         res.json({success: true, data: results});
     } catch (error) {
         console.error('[Search API] Error:', error);
         res.status(500).json({success: false, error: error.message});
+    }
+});
+
+// 大盘指数API
+var INDEX_CODES = [
+    'sh000001','sz399001','sz399006','sh000688','sh000016','bj899050',
+    'sh000300','sh000905','sh000852','sz399330','sz399005',
+    'sh000010','sh000903','sz399293','sz399106','sz399004','sz399011','sz399012','sh000842',
+    'sh000827','sh000849','sh000932','sh000941','sh000979','sh000990','sh000991','sh000993','sz399015','sz399017',
+    'hkHSI','hkHSTECH','hkHSCEI','hkHSCCI',
+    'usDJI','usIXIC','usINX','usNDX',
+    'fuGC','fuCL','fuSI','fuHG','fuNG','fuZC','fuRB',
+    'fxUSDCNY','fxUSDHKD','fxEURUSD','fxGBPUSD','fxUSDJPY','fxEURCNY','fxEURHKD','fxJPYCNY',
+    'sh000012','sh000013'
+];
+var indexCache = { data: null, timestamp: 0, ttl: 5000 };
+
+app.get('/api/indices', async function(req, res) {
+    try {
+        var now = Date.now();
+        if (indexCache.data && (now - indexCache.timestamp) < indexCache.ttl) {
+            return res.json({success: true, data: indexCache.data});
+        }
+        
+        var codesStr = INDEX_CODES.join(',');
+        var url = 'http://qt.gtimg.cn/q=' + codesStr;
+        var response = await axios.get(url, { responseType: 'arraybuffer', timeout: 10000 });
+        var data = iconv.decode(response.data, 'gbk');
+        var stocks = parseStockData(data);
+        
+        indexCache.data = stocks;
+        indexCache.timestamp = now;
+        res.json({success: true, data: stocks});
+    } catch (error) {
+        if (indexCache.data) {
+            return res.json({success: true, data: indexCache.data});
+        }
+        res.json({success: true, data: []});
     }
 });
 
@@ -395,6 +685,8 @@ function parseStockData(rawData) {
             var codeMatch = line.match(/^v_([^=]+)=/);
             var code = (codeMatch && codeMatch[1]) || fields[2] || '';
             
+            // 换手率：A股用fields[38]，港股用fields[59]
+            var trField = /^hk/.test(code) ? 59 : 38;
             var stock = {
                 code: code,
                 name: fields[1] || '',
@@ -404,7 +696,7 @@ function parseStockData(rawData) {
                 change: parseFloat(fields[31]) || 0,
                 changePercent: parseFloat(fields[32]) || 0,
                 volume: parseInt(fields[6]) || 0,
-                turnoverRate: parseFloat(fields[38]) || 0
+                turnoverRate: parseFloat(fields[trField]) || 0
             };
             stocks.push(stock);
         } catch (e) {

@@ -1,0 +1,8 @@
+node_modules
+npm-debug.log
+server.log
+.git
+.gitignore
+.workbuddy
+*.md
+.DS_Store
