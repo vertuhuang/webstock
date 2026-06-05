@@ -9,6 +9,14 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
+// 禁用代理 — 本地开发环境代理不可用，直连腾讯/新浪 API
+delete process.env.http_proxy;
+delete process.env.HTTP_PROXY;
+delete process.env.https_proxy;
+delete process.env.HTTPS_PROXY;
+delete process.env.no_proxy;
+delete process.env.NO_PROXY;
+
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));

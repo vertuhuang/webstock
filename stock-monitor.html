@@ -470,13 +470,15 @@
 
         .table-wrapper {
             margin-top: 16px;
+            border: 1px solid #dee2e6;
             border-radius: 4px;
-            overflow: clip;
+            overflow: visible;
         }
 
         .stock-table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
             font-size: 12px;
             font-family: inherit;
         }
@@ -513,8 +515,13 @@
             text-align: left;
             font-weight: normal;
             font-size: 12px;
-            border: 1px solid #dee2e6;
+            border-right: 1px solid #dee2e6;
+            border-bottom: 1px solid #dee2e6;
             font-family: inherit;
+        }
+
+        .stock-table th:last-child {
+            border-right: none;
         }
 
         .stock-table tbody tr {
@@ -535,10 +542,19 @@
 
         .stock-table td {
             padding: 6px 10px;
-            border: 1px solid #dee2e6;
+            border-right: 1px solid #dee2e6;
+            border-bottom: 1px solid #dee2e6;
             font-size: 12px;
             color: #000000;
             font-family: inherit;
+        }
+
+        .stock-table td:last-child {
+            border-right: none;
+        }
+
+        .stock-table tbody tr:last-child td {
+            border-bottom: none;
         }
 
 
