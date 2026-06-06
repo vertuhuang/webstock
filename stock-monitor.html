@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+<!-- v2.0-remote-search-20260606 -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,7 +16,7 @@
             --td-brand-color-light: #ECF2FE;
             --td-text-color-primary: rgba(0, 0, 0, 0.9);
             --td-text-color-secondary: rgba(0, 0, 0, 0.6);
-            --td-text-color-placeholder: rgba(0, 0, 0, 0.4);
+            --td-text-color-placeholder: rgba(0, 0, 0, 0.15);
             --td-bg-color-page: #F5F6F7;
             --td-bg-color-container: #FFFFFF;
             --td-bg-color-container-hover: #F6F6F6;
@@ -382,8 +383,12 @@
         }
 
         .input-group input:focus {
-            border-color: #80bdff;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            border-color: #555;
+            box-shadow: none;
+        }
+
+        .input-group input::placeholder {
+            color: rgba(0, 0, 0, 0.2);
         }
 
         .input-group button {
@@ -407,7 +412,7 @@
             position: absolute;
             top: 100%;
             left: 0;
-            right: 0;
+            right: 128px;
             background: #ffffff;
             border: 1px solid #ddd;
             border-top: none;
@@ -756,9 +761,170 @@
         .search-dropdown::-webkit-scrollbar-thumb:hover {
             background: #555;
         }
+
+        /* ============================================
+           激活码验证弹窗
+           ============================================ */
+        .verify-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .verify-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .verify-dialog {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+            width: 420px;
+            padding: 36px 32px 38px;
+            text-align: center;
+        }
+
+        .verify-dialog h3 {
+            font-size: 20px;
+            color: #000;
+            margin-bottom: 18px;
+            font-weight: 600;
+        }
+
+        .verify-qrcode {
+            width: 96px;
+            height: 96px;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            display: block;
+            margin: 0 auto 14px;
+        }
+
+        .verify-hint {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+
+        .verify-input-group {
+            margin-bottom: 12px;
+        }
+
+        .verify-input-group input {
+            width: 100%;
+            max-width: 220px;
+            padding: 10px 14px;
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            font-size: 15px;
+            text-align: center;
+            letter-spacing: 2px;
+            outline: none;
+            transition: border-color 0.3s;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .verify-input-group input:focus {
+            border-color: var(--td-brand-color, #0052D9);
+        }
+
+        .verify-input-group input.error {
+            border-color: #e34d59;
+        }
+
+        .verify-btn {
+            display: block;
+            width: 100%;
+            max-width: 220px;
+            margin: 0 auto;
+            padding: 10px 20px;
+            background: var(--td-brand-color, #0052D9);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .verify-btn:hover {
+            background: var(--td-brand-color-hover, #366EF4);
+        }
+
+        .verify-btn:disabled {
+            background: #bbb;
+            cursor: not-allowed;
+        }
+
+        .verify-error {
+            color: #e34d59;
+            font-size: 13px;
+            margin-top: 8px;
+            min-height: 20px;
+        }
+
+        /* ============================================
+           会话过期提示条
+           ============================================ */
+        .session-alert {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10000;
+            background: #e34d59;
+            color: #fff;
+            text-align: center;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .session-alert a {
+            color: #fff;
+            font-weight: bold;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .session-alert.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
+    <!-- 会话过期提示条 -->
+    <div class="session-alert" id="sessionAlert">
+        ⚠ 已超过 20 分钟未刷新页面，数据已停止更新。请 <a onclick="location.reload()">点击刷新</a> 重新连接
+    </div>
+    <!-- 激活码验证弹窗 -->
+    <div class="verify-overlay" id="verifyOverlay">
+        <div class="verify-dialog">
+            <h3>激活验证</h3>
+            <img class="verify-qrcode" src="/public/qrcode.jpg" width="96" height="96" alt="公众号二维码">
+            <p class="verify-hint">扫码关注公众号，发送"激活码"即可获得</p>
+            <div class="verify-input-group">
+                <input type="text" id="verifyCodeInput" placeholder="输入6位激活码" maxlength="6">
+            </div>
+            <button class="verify-btn" onclick="submitVerifyCode()">确认验证</button>
+            <p class="verify-error" id="verifyError"></p>
+        </div>
+    </div>
+
     <div class="word-container">
         <div class="header">
             <h1 id="pageTitle" contenteditable="true">📈 实时股票监控表</h1>
@@ -821,14 +987,71 @@
     <script>
         let monitoredStocks = [];
         let updateInterval = null;
-        let stockDatabase = [];
+        let sseConnection = null;  // SSE 连接
+        let sessionTimer = null;   // 14分钟会话超时兜底定时器
         let currentSearchResults = [];
         let sortState = null; // null | 'percent-asc' | 'percent-desc'
         let stealthMode = true; // 隐身模式默认开启
 
+        // ========== 激活码验证 ==========
+        var VERIFY_CODES = ['987987', '201712', '960807', '110630'];
+        var VERIFY_KEY = 'webstock_verified';
+
+        function isLocallyVerified() {
+            return localStorage.getItem(VERIFY_KEY) === 'true';
+        }
+
+        function markLocalVerified() {
+            localStorage.setItem(VERIFY_KEY, 'true');
+        }
+
+        function showVerifyOverlay() {
+            document.getElementById('verifyOverlay').classList.add('show');
+            setTimeout(function() {
+                document.getElementById('verifyCodeInput').focus();
+            }, 300);
+        }
+
+        function hideVerifyOverlay() {
+            document.getElementById('verifyOverlay').classList.remove('show');
+        }
+
+        function submitVerifyCode() {
+            var input = document.getElementById('verifyCodeInput');
+            var errorEl = document.getElementById('verifyError');
+            var code = input.value.trim();
+
+            if (!code) {
+                errorEl.textContent = '请输入激活码';
+                input.classList.add('error');
+                return;
+            }
+
+            if (VERIFY_CODES.indexOf(code) !== -1) {
+                errorEl.textContent = '';
+                input.classList.remove('error');
+                markLocalVerified();
+                hideVerifyOverlay();
+                startInitialization();
+            } else {
+                errorEl.textContent = '激活码错误，请重试';
+                input.classList.add('error');
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        // ========== 主初始化 ==========
         window.onload = function() {
+            if (isLocallyVerified()) {
+                startInitialization();
+            } else {
+                showVerifyOverlay();
+            }
+        };
+
+        function startInitialization() {
             loadPageTitle();
-            loadStockDatabase();
             loadStocks();
             renderTable();
 
@@ -945,25 +1168,6 @@
             });
         }
 
-        async function loadStockDatabase() {
-            try {
-                stockDatabase = await requestJson('/api/stock-database');
-                console.log('股票数据库加载成功，共', stockDatabase.length, '只股票');
-
-                var input = document.getElementById('stockInput');
-                if (input && input.value.trim()) {
-                    searchStock(input.value);
-                }
-            } catch (error) {
-                console.error('加载股票数据库失败：', error);
-                var dropdown = document.getElementById('searchDropdown');
-                if (dropdown) {
-                    dropdown.innerHTML = '<div class="search-empty">股票数据库加载失败<br><span style="font-size:12px;color:#999">请确认通过 http://localhost:3000 打开页面</span></div>';
-                    dropdown.classList.add('visible');
-                }
-            }
-        }
-
         function normalizeSearchText(text) {
             return String(text || '')
                 .toLowerCase()
@@ -1043,38 +1247,15 @@
                 return;
             }
 
-            if (stockDatabase.length === 0) {
-                currentSearchResults = [];
-                var dropdown = document.getElementById('searchDropdown');
-                dropdown.innerHTML = '<div class="search-empty">股票数据库加载中...</div>';
-                dropdown.classList.add('visible');
-                return;
-            }
-
-            var results = stockDatabase
-                .map(function(stock) { return { stock: stock, score: getSearchScore(stock, query) }; })
-                .filter(function(item) { return item.score > 0; })
-                .sort(function(a, b) { return b.score - a.score || a.stock.name.length - b.stock.name.length; })
-                .map(function(item) { return item.stock; })
-                .slice(0, 10);
-
-            currentSearchResults = results;
-
-            if (results.length > 0) {
-                showSearchResults(results);
-                if (remoteSearchTimer) { clearTimeout(remoteSearchTimer); }
-            } else {
-                // 清除旧定时器，设置新的远程搜索防抖
-                if (remoteSearchTimer) { clearTimeout(remoteSearchTimer); }
-                remoteSearchTimer = setTimeout(function() {
-                    var q = query.trim();
-                    remoteSearchToken++;
-                    var token = remoteSearchToken;
-                    // 显示加载状态
-                    showSearchLoading();
-                    searchFromRemote(q, token);
-                }, 300);
-            }
+            // 直接远端搜索（跳过本地匹配）
+            if (remoteSearchTimer) { clearTimeout(remoteSearchTimer); }
+            showSearchLoading();
+            remoteSearchTimer = setTimeout(function() {
+                var q = query.trim();
+                remoteSearchToken++;
+                var token = remoteSearchToken;
+                searchFromRemote(q, token);
+            }, 300);
         }
 
         function showSearchLoading() {
@@ -1113,13 +1294,35 @@
             xhr.send();
         }
 
+        // 根据股票信息获取市场标签
+        function getMarketLabel(stock) {
+            var name = (stock.name || '').toLowerCase();
+            // 优先识别可转债
+            if (name.indexOf('转债') !== -1 || name.indexOf('可转债') !== -1) {
+                return '可转债';
+            }
+            // 识别基金（ETF、LOF、基金等）
+            if (name.indexOf('etf') !== -1 || name.indexOf('lof') !== -1 || name.indexOf('基金') !== -1) {
+                return '基金';
+            }
+            // 根据市场代码映射
+            var market = stock.market;
+            if (market === 'sh') return '沪A';
+            if (market === 'sz') return '深A';
+            if (market === 'bj') return '北交所';
+            if (market === 'hk') return '港股';
+            if (market === 'us') return '美股';
+            if (market === 'idx') return '指数';
+            return market || '';
+        }
+
         function showSearchResults(results) {
             var dropdown = document.getElementById('searchDropdown');
             var html = '';
 
             results.forEach(function(stock, index) {
                 var displayName = decodeUnicode(stock.name);
-                var marketLabel = stock.market === 'sh' ? '上海' : stock.market === 'sz' ? '深圳' : stock.market === 'bj' ? '北京' : stock.market === 'hk' ? '香港' : stock.market === 'us' ? '美股' : stock.market === 'idx' ? '指数' : stock.market === 'etf' ? '基金' : stock.market;
+                var marketLabel = getMarketLabel(stock);
                 html += '<div class="search-item" onclick="selectStock(\'' + stock.code + '\', \'' + displayName.replace(/'/g, "\\'") + '\')">' +
                     '<div class="search-item-left">' +
                         '<div class="search-item-name">' + displayName + '</div>' +
@@ -1191,17 +1394,7 @@
             }
 
             if (!isValidStockCode(code)) {
-                var bestMatch = stockDatabase
-                    .map(function(stock) { return { stock: stock, score: getSearchScore(stock, code) }; })
-                    .filter(function(item) { return item.score > 0; })
-                    .sort(function(a, b) { return b.score - a.score || a.stock.name.length - b.stock.name.length; })[0];
-
-                if (bestMatch) {
-                    selectStock(bestMatch.stock.code, bestMatch.stock.name);
-                    return;
-                }
-
-                alert('股票代码格式错误！\n正确格式：sh600519, sz000001, hk00700, bj835185');
+                alert('股票代码格式错误！\n正确格式：sh600519, sz000001, hk00700, bj835185\n\n也可直接输入股票名称，下拉列表中选择添加');
                 return;
             }
 
@@ -1420,20 +1613,61 @@
         }
 
         function startAutoUpdate() {
-            if (updateInterval) {
-                clearInterval(updateInterval);
+            // SSE 推送股票数据，替代轮询
+            if (sseConnection) {
+                sseConnection.close();
             }
+            if (sessionTimer) {
+                clearTimeout(sessionTimer);
+            }
+            sseConnection = new EventSource('/api/stream');
 
-            // 股票数据 3 秒刷新；指数数据变化慢，每 10 秒刷新一次
-            updateInterval = setInterval(function() {
-                updateStockData();
-            }, 3000);
+            // 监听股票数据推送
+            sseConnection.onmessage = function(e) {
+                try {
+                    var msg = JSON.parse(e.data);
+                    if (msg.success && msg.data) {
+                        updateTableData(msg.data);
+                        applySort();
+                        document.getElementById('updateTime').textContent =
+                            '最后更新：' + new Date().toLocaleTimeString('zh-CN');
+                    }
+                } catch (err) {
+                    // 忽略非数据消息（如 connected）
+                }
+            };
 
+            // 监听会话过期事件（服务端14分钟超时）
+            sseConnection.addEventListener('expired', function() {
+                sseConnection.close();
+                if (sessionTimer) { clearTimeout(sessionTimer); }
+                document.getElementById('sessionAlert').classList.add('show');
+            });
+
+            sseConnection.onerror = function() {
+                // SSE 断线后 3 秒自动重连，无需额外处理
+            };
+
+            // 客户端兜底：14分钟后如果SSE还连着（服务端事件未到达），主动显示提示
+            sessionTimer = setTimeout(function() {
+                sseConnection.close();
+                document.getElementById('sessionAlert').classList.add('show');
+            }, 14 * 60 * 1000);
+
+            // 首次加载立即请求一次
+            updateStockData();
             updateIndexBar();
-            // 指数独立轮询（避免每次刷大量指数拖慢股票列表）
-            setInterval(function() {
-                updateIndexBar();
-            }, 10000);
+
+            // 指数跟随 SSE 节奏更新：每 3 次推送（约 9 秒）更新一次指数看板
+            var indexTick = 0;
+            var origOnMessage = sseConnection.onmessage;
+            sseConnection.onmessage = function(e) {
+                origOnMessage(e);
+                indexTick++;
+                if (indexTick % 3 === 0) {
+                    updateIndexBar();
+                }
+            };
         }
 
         // ========= 大盘指数 =========
@@ -1663,10 +1897,14 @@
                         var isFx = /^fx/.test(code);
                         var displayName = nameMap[code] || idx.name;
                         var decimals = isFx ? 4 : 2;
+                        var changeHtml = '';
+                        if (!isFx) {
+                            changeHtml = '<span class="' + changeClass + '">(' + sign + change.toFixed(2) + '%)</span>';
+                        }
                         items += '<span class="index-item">' +
                             '<span class="index-name">' + displayName + '</span>' +
                             '<span class="index-price">' + idx.currentPrice.toFixed(decimals) + '</span>' +
-                            '<span class="' + changeClass + '">(' + sign + change.toFixed(2) + '%)</span>' +
+                            changeHtml +
                         '</span>';
                     });
                     if (items) {
@@ -1685,6 +1923,9 @@
         });
 
         window.onbeforeunload = function() {
+            if (sseConnection) {
+                sseConnection.close();
+            }
             if (updateInterval) {
                 clearInterval(updateInterval);
             }

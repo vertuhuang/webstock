@@ -1,13 +1,20 @@
+// webstock v2.0 - remote search + SSE + 20min timeout
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const iconv = require('iconv-lite');
+const compression = require('compression');
 const path = require('path');
-const fs = require('fs');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
+const VERBOSE = process.env.NODE_ENV !== 'production';
+
+function log() {
+    if (!VERBOSE) return;
+    console.log.apply(console, arguments);
+}
 
 // 禁用代理 — 本地开发环境代理不可用，直连腾讯/新浪 API
 delete process.env.http_proxy;
@@ -18,7 +25,16 @@ delete process.env.no_proxy;
 delete process.env.NO_PROXY;
 
 app.use(cors());
+app.use(compression());
 app.use(express.json());
+// 只暴露安全目录和文件，拦截 node_modules/.git 等敏感路径
+app.use(function(req, res, next) {
+    var p = req.path;
+    if (/^\/node_modules|^\/\.git|^\/\.workbuddy|^\/package/.test(p)) {
+        return res.status(404).send('Not found');
+    }
+    next();
+});
 app.use(express.static(__dirname));
 
 // ========= 缓存层 =========
@@ -29,8 +45,6 @@ const cache = {
     updating: false,       // 是否正在更新
     key: ''                // 当前缓存对应的股票代码列表
 };
-
-let stockDatabaseIndex = null;
 
 function normalizeCode(code) {
     var c = String(code || '').trim();
@@ -51,34 +65,11 @@ function getCodesKey(codes) {
     return (codes || []).map(normalizeCode).join(',');
 }
 
-function getStockDatabaseIndex() {
-    if (stockDatabaseIndex) return stockDatabaseIndex;
-
-    stockDatabaseIndex = new Map();
-    const dbPath = path.join(__dirname, 'stock-database.json');
-
-    try {
-        const stocks = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
-        stocks.forEach(stock => {
-            if (stock && stock.code) {
-                stockDatabaseIndex.set(normalizeCode(stock.code), stock);
-            }
-        });
-        console.log(`[Database] Loaded ${stockDatabaseIndex.size} local stocks`);
-    } catch (error) {
-        console.error('[Database] Load failed:', error.message);
-    }
-
-    return stockDatabaseIndex;
-}
-
 function createFallbackStock(code) {
     const normalizedCode = normalizeCode(code);
-    const localStock = getStockDatabaseIndex().get(normalizedCode);
-
     return {
         code: normalizedCode || code,
-        name: (localStock && localStock.name) || normalizedCode || code,
+        name: normalizedCode || code,
         currentPrice: 0,
         highPrice: 0,
         lowPrice: 0,
@@ -129,7 +120,7 @@ function startBackgroundTask() {
             // 推送给所有SSE客户端
             broadcastToSSEClients(stocks);
             
-            console.log(`[Background] Cache updated, ${stocks.length} stocks`);
+            log(`[Background] Cache updated, ${stocks.length} stocks`);
         } catch (error) {
             console.error('[Background] Update failed:', error.message);
         } finally {
@@ -137,7 +128,7 @@ function startBackgroundTask() {
         }
     }, 3000);
     
-    console.log('[Background] Task started');
+    log('[Background] Task started');
 }
 
 // 停止后台任务
@@ -145,27 +136,45 @@ function stopBackgroundTask() {
     if (backgroundTask) {
         clearInterval(backgroundTask);
         backgroundTask = null;
-        console.log('[Background] Task stopped');
+        log('[Background] Task stopped');
     }
 }
 
 // ========= SSE客户端管理 =========
-const sseClients = new Set();
+const sseClients = new Map(); // Map<res, { createdAt, timeout }>
+const SSE_SESSION_TIMEOUT = 14 * 60 * 1000; // 14分钟（留余量确保在CLB超时前触发）
 
 function addSSEClient(res) {
-    sseClients.add(res);
-    console.log(`[SSE] Client connected, total: ${sseClients.size}`);
+    var now = Date.now();
+    var timeout = setTimeout(function() {
+        // 14分钟超时，发送过期事件并关闭连接
+        log('[SSE] Session expired, closing client');
+        try {
+            res.write('retry: 0\nevent: expired\ndata: {"type":"session-expired"}\n\n');
+            res.end();
+        } catch (e) {
+            // 连接可能已断开
+        }
+        removeSSEClient(res);
+    }, SSE_SESSION_TIMEOUT);
+
+    sseClients.set(res, { createdAt: now, timeout: timeout });
+    log('[SSE] Client connected, total: ' + sseClients.size);
     
     // 立即发送当前缓存数据
     if (cache.data && cache.data.length > 0) {
-        const data = JSON.stringify({ success: true, data: cache.data });
-        res.write(`data: ${data}\n\n`);
+        var data = JSON.stringify({ success: true, data: cache.data });
+        res.write('data: ' + data + '\n\n');
     }
 }
 
 function removeSSEClient(res) {
+    var client = sseClients.get(res);
+    if (client && client.timeout) {
+        clearTimeout(client.timeout);
+    }
     sseClients.delete(res);
-    console.log(`[SSE] Client disconnected, total: ${sseClients.size}`);
+    log('[SSE] Client disconnected, total: ' + sseClients.size);
     
     // 如果没有SSE客户端了，停止后台任务
     if (sseClients.size === 0) {
@@ -174,18 +183,18 @@ function removeSSEClient(res) {
 }
 
 function broadcastToSSEClients(stocks) {
-    const data = JSON.stringify({ success: true, data: stocks });
-    const message = `data: ${data}\n\n`;
+    var data = JSON.stringify({ success: true, data: stocks });
+    var message = 'data: ' + data + '\n\n';
     
-    sseClients.forEach(client => {
+    sseClients.forEach(function(client, res) {
         try {
-            client.write(message);
+            res.write(message);
         } catch (error) {
             console.error('[SSE] Broadcast error:', error.message);
         }
     });
     
-    console.log(`[SSE] Broadcasted to ${sseClients.size} clients`);
+    log('[SSE] Broadcasted to ' + sseClients.size + ' clients');
 }
 
 // ========= API调用函数 =========
@@ -247,6 +256,13 @@ async function fetchStockDataFromAPI(codes) {
     return completeStocks(normalizedCodes, results);
 }
 
+// 港股换手率缓存（每分钟更新一次，无需每3秒请求）
+var hkTurnoverCache = {
+    data: {},      // { code: turnoverRate }
+    timestamp: 0,
+    ttl: 60000     // 60秒
+};
+
 async function fetchFromSinaHK(codes) {
     const symbols = codes.map(function(c) { return 'rt_hk' + c.replace(/^hk/, ''); }).join(',');
     const url = 'https://hq.sinajs.cn/list=' + symbols;
@@ -300,36 +316,46 @@ async function fetchFromSinaHK(codes) {
         }
     }
 
-    // 补充腾讯数据获取换手率（腾讯虽延迟，但换手率变化慢，可接受）
+    // 换手率：优先用缓存，缓存过期才调腾讯API（每分钟一次）
     if (stocks.length > 0) {
-        try {
-            const tencentCodes = stocks.map(function(s) { return s.code; }).join(',');
-            const tencentUrl = 'http://qt.gtimg.cn/q=' + tencentCodes;
-            const tencentResp = await axios.get(tencentUrl, {
-                responseType: 'arraybuffer',
-                timeout: 8000
-            });
-            const tencentData = iconv.decode(tencentResp.data, 'gbk');
-            const tencentStocks = parseStockData(tencentData);
-            
-            // 用腾讯的换手率覆盖新浪数据
-            const tencentMap = {};
-            tencentStocks.forEach(function(ts) {
-                tencentMap[normalizeCode(ts.code)] = ts;
-            });
-            stocks.forEach(function(s) {
-                var key = normalizeCode(s.code);
-                var ts = tencentMap[key];
-                if (ts && ts.turnoverRate > 0) {
-                    s.turnoverRate = ts.turnoverRate;
-                }
-            });
-        } catch (e) {
-            console.error('[Sina HK] 腾讯补数据失败:', e.message);
+        var now = Date.now();
+        var cacheFresh = (now - hkTurnoverCache.timestamp) < hkTurnoverCache.ttl;
+
+        if (!cacheFresh) {
+            try {
+                const tencentCodes = stocks.map(function(s) { return s.code; }).join(',');
+                const tencentUrl = 'http://qt.gtimg.cn/q=' + tencentCodes;
+                const tencentResp = await axios.get(tencentUrl, {
+                    responseType: 'arraybuffer',
+                    timeout: 8000
+                });
+                const tencentData = iconv.decode(tencentResp.data, 'gbk');
+                const tencentStocks = parseStockData(tencentData);
+
+                // 更新换手率缓存
+                hkTurnoverCache.data = {};
+                tencentStocks.forEach(function(ts) {
+                    var key = normalizeCode(ts.code);
+                    hkTurnoverCache.data[key] = ts.turnoverRate || 0;
+                });
+                hkTurnoverCache.timestamp = now;
+                log('[Sina HK] 换手率缓存已更新');
+            } catch (e) {
+                console.error('[Sina HK] 换手率更新失败:', e.message);
+            }
         }
+
+        // 应用缓存的换手率
+        stocks.forEach(function(s) {
+            var key = normalizeCode(s.code);
+            var cachedRate = hkTurnoverCache.data[key];
+            if (cachedRate > 0) {
+                s.turnoverRate = cachedRate;
+            }
+        });
     }
 
-    console.log(`[Sina HK] 获取 ${stocks.length} 只港股`);
+    log(`[Sina HK] 获取 ${stocks.length} 只港股`);
     return stocks;
 }
 
@@ -386,7 +412,7 @@ async function fetchFromSinaUS(codes) {
         }
     }
 
-    console.log(`[Sina US] 获取 ${stocks.length} 只美股`);
+    log(`[Sina US] 获取 ${stocks.length} 只美股`);
     return stocks;
 }
 
@@ -398,12 +424,12 @@ async function getCachedStocks(codes) {
     
     // 检查缓存是否有效
     if (cache.data && cache.key === key && (now - cache.timestamp) < cache.ttl) {
-        console.log(`[Cache] Hit, age: ${now - cache.timestamp}ms`);
+        log(`[Cache] Hit, age: ${now - cache.timestamp}ms`);
         return cache.data;
     }
     
     // 缓存过期或不存在，调用API
-    console.log(`[Cache] Miss, fetching from API`);
+    log(`[Cache] Miss, fetching from API`);
     const stocks = await fetchStockDataFromAPI(normalizedCodes);
     
     // 更新缓存
@@ -442,7 +468,7 @@ async function searchStocksFromAPI(keyword) {
             // 格式: v_hint="sz~300750~宁德时代~ndsd~GP-A^hk~03750~宁德时代~ndsd~GP^..."
             const match = rawData.match(/v_hint="(.+)"/);
             if (!match || !match[1]) {
-                console.log('[Search] No match in response');
+                log('[Search] No match in response');
                 return [];
             }
             
@@ -602,6 +628,10 @@ app.post('/api/stocks', async function(req, res) {
     }
 });
 
+// ========= 搜索缓存 =========
+var searchCache = {};
+var SEARCH_CACHE_TTL = 5000; // 5秒
+
 // ========= 新增：搜索股票API =========
 app.get('/api/search-stocks', async function(req, res) {
     try {
@@ -609,16 +639,25 @@ app.get('/api/search-stocks', async function(req, res) {
         if (!keyword || keyword.trim().length === 0) {
             return res.json({success: true, data: []});
         }
-        
-        console.log('[Search] Remote search for: ' + keyword);
-        var results = await searchStocksFromAPI(keyword.trim());
-        
-        // smartbox 未找到结果时，尝试东方财富可转债搜索
-        if (results.length === 0) {
-            results = await searchKZZFromEastMoney(keyword.trim());
+
+        // 检查搜索缓存
+        var now = Date.now();
+        var cached = searchCache[keyword];
+        if (cached && (now - cached.timestamp) < SEARCH_CACHE_TTL) {
+            log('[Search] Cache hit: ' + keyword);
+            return res.json({success: true, data: cached.data});
         }
         
-        console.log('[Search] Found ' + results.length + ' results');
+        log('[Search] Remote search for: ' + keyword);
+        var [stockResults, kzzResults] = await Promise.all([
+            searchStocksFromAPI(keyword.trim()),
+            searchKZZFromEastMoney(keyword.trim())
+        ]);
+        var results = stockResults.concat(kzzResults);
+        
+        // 写入缓存
+        searchCache[keyword] = { data: results, timestamp: now };
+        log('[Search] Found ' + results.length + ' results');
         res.json({success: true, data: results});
     } catch (error) {
         console.error('[Search API] Error:', error);
@@ -640,7 +679,24 @@ var INDEX_CODES = [
 ];
 // 指数缓存：按请求的codes集合分组缓存，TTL 10秒（腾讯接口3-5秒更新一次）
 var indexCache = {};
+var indexCacheOrder = []; // LRU 顺序
 var INDEX_CACHE_TTL = 10000;
+var INDEX_CACHE_MAX = 5;  // 最多5条
+
+function indexCacheSet(key, value) {
+    // 移除旧位置
+    var idx = indexCacheOrder.indexOf(key);
+    if (idx !== -1) indexCacheOrder.splice(idx, 1);
+    // 加到末尾（最新）
+    indexCacheOrder.push(key);
+    indexCache[key] = value;
+    // 超限时淘汰最旧的
+    if (indexCacheOrder.length > INDEX_CACHE_MAX) {
+        var oldest = indexCacheOrder.shift();
+        delete indexCache[oldest];
+        log('[IndexCache] Evicted: ' + oldest);
+    }
+}
 
 app.get('/api/indices', async function(req, res) {
     try {
@@ -666,7 +722,7 @@ app.get('/api/indices', async function(req, res) {
             allStocks = allStocks.concat(parseStockData(data));
         }
 
-        indexCache[cacheKey] = { data: allStocks, timestamp: now };
+        indexCacheSet(cacheKey, { data: allStocks, timestamp: now });
         res.json({success: true, data: allStocks});
     } catch (error) {
         var cacheKey = (req.query.codes || INDEX_CODES.join(',')).split(',').slice().sort().join(',');
@@ -680,11 +736,6 @@ app.get('/api/indices', async function(req, res) {
         }
         res.json({success: true, data: []});
     }
-});
-
-app.get('/api/stock-database', function(req, res) {
-    const dbPath = path.join(__dirname, 'stock-database.json');
-    res.sendFile(dbPath);
 });
 
 function parseStockData(rawData) {
@@ -733,19 +784,21 @@ function parseStockData(rawData) {
 }
 
 const server = app.listen(PORT, HOST, function() {
-    console.log('Server started at http://' + HOST + ':' + PORT);
-    // 预热默认指数缓存（7个常用指数），首次页面加载直接命中
-    var defaultCodes = ['sh000001','sz399001','sz399006','hkHSI','hkHSTECH','sh000300','sh000905'];
-    var url = 'http://qt.gtimg.cn/q=' + defaultCodes.join(',');
-    axios.get(url, { responseType: 'arraybuffer', timeout: 10000 }).then(function(response) {
-        var data = iconv.decode(response.data, 'gbk');
-        var stocks = parseStockData(data);
-        var cacheKey = defaultCodes.slice().sort().join(',');
-        indexCache[cacheKey] = { data: stocks, timestamp: Date.now() };
-        console.log('Index cache warmed: ' + stocks.length + ' indices');
-    }).catch(function(err) {
-        console.log('Index warmup skipped (no network or offline)');
-    });
+    log('Server started at http://' + HOST + ':' + PORT);
+    // 预热默认指数缓存（仅生产环境）
+    if (!VERBOSE) {
+        var defaultCodes = ['sh000001','sz399001','sz399006','hkHSI','hkHSTECH','sh000300','sh000905'];
+        var url = 'http://qt.gtimg.cn/q=' + defaultCodes.join(',');
+        axios.get(url, { responseType: 'arraybuffer', timeout: 10000 }).then(function(response) {
+            var data = iconv.decode(response.data, 'gbk');
+            var stocks = parseStockData(data);
+            var cacheKey = defaultCodes.slice().sort().join(',');
+            indexCacheSet(cacheKey, { data: stocks, timestamp: Date.now() });
+            log('Index cache warmed: ' + stocks.length + ' indices');
+        }).catch(function(err) {
+            log('Index warmup skipped (no network or offline)');
+        });
+    }
 });
 
 server.on('error', function(error) {

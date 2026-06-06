@@ -14,10 +14,7 @@ RUN npm config set registry https://mirrors.cloud.tencent.com/npm/ && \
     npm cache clean --force
 
 COPY server.js ./
-COPY stock-database.json ./
-COPY hk-stock-database.json ./
 COPY stock-monitor.html ./
-COPY stock-monitor-tdesign.html ./
 COPY public/ ./public/
 
 ENV NODE_ENV=production
