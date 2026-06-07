@@ -1,4 +1,4 @@
-// webstock v2.0 - remote search + SSE + 20min timeout
+// webstock v2.1 - remote search + SSE + bj market support
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
@@ -513,7 +513,8 @@ async function searchStocksFromAPI(keyword) {
     return [];
 }
 
-// ========= 搜索可转债API（东方财富搜索）=========
+// ========= 搜索转债/北交所API（东方财富搜索）=========
+// 东方财富API覆盖北交所(京A/NEEQ)、可转债等腾讯smartbox不覆盖的品种
 async function searchKZZFromEastMoney(keyword) {
     const url = 'https://searchadapter.eastmoney.com/api/suggest/get';
     const params = {
@@ -544,25 +545,37 @@ async function searchKZZFromEastMoney(keyword) {
                 const item = items[i];
                 const code = item.Code;
                 const name = item.Name;
-                const marketType = item.MarketType; // 1=sh, 2=sz, 5=hk
-                const secType = item.SecurityTypeName;
+                const marketType = item.MarketType; // 1=sh, 2=sz, _TB=bj
+                const secTypeName = item.SecurityTypeName; // 京A / 沪A / 深A
+                const classify = item.Classify; // NEEQ / AStock / Index
                 
-                // 只保留可转债（债券类型且代码以11/12开头）
                 if (!code || !name) continue;
-                var isKZZ = /^1[12]/.test(code);
-                if (!isKZZ) continue;
                 
-                var prefix = marketType === '1' ? 'sh' : marketType === '2' ? 'sz' : '';
-                if (!prefix) continue;
+                var fullCode;
                 
-                var fullCode = prefix + code;
+                // 可转债（代码以11/12开头）
+                if (/^1[12]/.test(code)) {
+                    var prefix = marketType === '1' ? 'sh' : marketType === '2' ? 'sz' : '';
+                    if (!prefix) continue;
+                    fullCode = prefix + code;
+                }
+                // 北交所（京A / NEEQ）
+                else if (secTypeName === '京A' || classify === 'NEEQ' || marketType === '_TB') {
+                    fullCode = 'bj' + code;
+                }
+                // 跳过普通A股（腾讯smartbox已覆盖）
+                else {
+                    continue;
+                }
+                
                 if (seen.has(fullCode)) continue;
                 seen.add(fullCode);
                 
+                var market = fullCode.substring(0, 2);
                 results.push({
                     code: fullCode,
                     name: name,
-                    market: prefix,
+                    market: market,
                     source: 'remote'
                 });
             }
