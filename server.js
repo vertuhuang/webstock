@@ -441,6 +441,115 @@ async function getCachedStocks(codes) {
     return stocks;
 }
 
+// ========= 当日分时走势图 =========
+const intradayCache = new Map();
+const INTRADAY_CACHE_TTL = 30000;
+const INTRADAY_CACHE_MAX = 80;
+
+function setIntradayCache(key, data) {
+    if (intradayCache.has(key)) intradayCache.delete(key);
+    intradayCache.set(key, { timestamp: Date.now(), data: data });
+    if (intradayCache.size > INTRADAY_CACHE_MAX) {
+        var oldestKey = intradayCache.keys().next().value;
+        intradayCache.delete(oldestKey);
+    }
+}
+
+function isIntradaySupportedCode(code) {
+    const normalized = normalizeCode(code);
+    return /^(sh|sz|bj)\d{6}$/.test(normalized) || /^hk\d{5}$/.test(normalized);
+}
+
+async function fetchIntradayFromTencent(code) {
+    const normalized = normalizeCode(code);
+    if (!isIntradaySupportedCode(normalized)) {
+        throw new Error('暂不支持该市场的当日走势图');
+    }
+
+    const cached = intradayCache.get(normalized);
+    if (cached && Date.now() - cached.timestamp < INTRADAY_CACHE_TTL) {
+        return cached.data;
+    }
+
+    const response = await axios.get('https://web.ifzq.gtimg.cn/appstock/app/minute/query', {
+        timeout: 10000,
+        params: { code: normalized },
+        headers: {
+            'User-Agent': 'Mozilla/5.0',
+            'Referer': 'https://gu.qq.com/'
+        }
+    });
+
+    const payload = response.data || {};
+    const minuteData = payload.data && payload.data[normalized] && payload.data[normalized].data;
+    const rows = minuteData && Array.isArray(minuteData.data) ? minuteData.data : [];
+    if (!rows.length) {
+        throw new Error('暂无当日分时数据');
+    }
+
+    var quote = null;
+    try {
+        quote = (await fetchStockDataFromAPI([normalized]))[0] || null;
+    } catch (e) {
+        quote = null;
+    }
+
+    var previousVolume = 0;
+    var previousAmount = 0;
+    const points = rows.map(function(item) {
+        var fields = String(item || '').trim().split(/\s+/);
+        var rawTime = fields[0] || '';
+        var time = rawTime.length === 4 ? rawTime.slice(0, 2) + ':' + rawTime.slice(2) : rawTime;
+        var price = parseFloat(fields[1]) || 0;
+        var volume = parseFloat(fields[2]) || 0;
+        var amount = parseFloat(fields[3]);
+        // 北交所等市场分时数据仅3个字段（时间、价格、成交量），无成交额字段
+        // 用 价格 × 成交量 × 100 估算（成交量单位：手，1手=100股）
+        if (isNaN(amount) || amount <= 0) {
+            amount = price * volume * 100;
+        }
+        var volumeDelta = Math.max(0, volume - previousVolume);
+        var amountDelta = Math.max(0, amount - previousAmount);
+        previousVolume = volume;
+        previousAmount = amount;
+
+        return {
+            time: time,
+            datetime: ((minuteData.date || '') + ' ' + time).trim(),
+            price: price,
+            volume: volume,
+            volumeDelta: volumeDelta,
+            amount: amount,
+            amountDelta: amountDelta,
+            average: 0
+        };
+    }).filter(function(point) {
+        return point.time && point.price > 0;
+    });
+
+    const result = {
+        code: normalized,
+        name: (quote && quote.name) || normalized,
+        preClose: (quote && quote.yesterdayClose) || 0,
+        quote: quote ? {
+            currentPrice: quote.currentPrice || 0,
+            yesterdayClose: quote.yesterdayClose || 0,
+            highPrice: quote.highPrice || 0,
+            lowPrice: quote.lowPrice || 0,
+            change: quote.change || 0,
+            changePercent: quote.changePercent || 0,
+            volume: quote.volume || 0,
+            turnoverRate: quote.turnoverRate || 0
+        } : null,
+        decimal: /^hk/.test(normalized) ? 3 : 2,
+        points: points,
+        updateTime: new Date().toISOString()
+    };
+
+    setIntradayCache(normalized, result);
+    return result;
+}
+
 // ========= 搜索股票API（代理腾讯财经搜索）=========
 async function searchStocksFromAPI(keyword) {
     // 腾讯财经 smartbox 搜索API，覆盖面比新浪更广
@@ -641,15 +750,18 @@ app.post('/api/stocks', async function(req, res) {
     }
 });
 
-app.get('/api/stock-database', function(req, res) {
-    const dbPath = path.join(__dirname, 'stock-database.json');
-    res.sendFile(dbPath, function(error) {
-        if (!error) return;
-        console.error('[StockDatabase] Send failed:', error.message);
-        if (!res.headersSent) {
-            res.status(404).json({success: false, error: 'stock database not found'});
+app.get('/api/intraday', async function(req, res) {
+    try {
+        const code = req.query.code;
+        if (!code) {
+            return res.status(400).json({success: false, error: 'code required'});
         }
-    });
+        const data = await fetchIntradayFromTencent(code);
+        res.json({success: true, data: data});
+    } catch (error) {
+        console.error('[Intraday API] Error:', error.message);
+        res.status(500).json({success: false, error: error.message});
+    }
 });
 
 // ========= 搜索缓存 =========

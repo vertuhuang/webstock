@@ -63,10 +63,10 @@
         }
 
         .header h1 {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: bold;
             color: #000000;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             font-weight: bold;
         }
 
@@ -97,7 +97,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 4px 16px;
-            padding: 8px 0;
+            padding: 12px 0;
             border-top: 1px dashed #d0d0d0;
         }
 
@@ -136,7 +136,7 @@
             color: #666;
         }
 
-        /* 隐身模式关闭：指数涨跌幅红绿 */
+        /* 红涨绿跌开启：指数涨跌幅着色 */
         body:not(.stealth-on) .index-change-up {
             color: #cf1322;
         }
@@ -600,6 +600,30 @@
             font-weight: normal;
             font-size: 13px;
             color: #000000;
+            padding: 0;
+            border: none;
+            background: none;
+            font: inherit;
+        }
+
+        .stock-price:disabled {
+            color: #000000;
+            cursor: default;
+        }
+
+        .stock-price-link {
+            padding: 0;
+            border: none;
+            background: none;
+            color: inherit;
+            cursor: pointer;
+            font: inherit;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .stock-price-link:hover {
+            color: inherit;
         }
 
         .stock-change-up {
@@ -614,7 +638,7 @@
             color: #000000;
         }
 
-        /* 隐身模式关闭：涨红跌绿 */
+        /* 红涨绿跌开启：个股涨跌幅着色 */
         body:not(.stealth-on) .stock-change-up {
             color: #cf1322;
         }
@@ -906,6 +930,41 @@
             display: block;
         }
 
+        .chart-dialog {
+            width: 760px;
+            max-width: calc(100vw - 40px);
+            max-height: 82vh;
+        }
+
+        .chart-summary {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px 16px;
+            color: var(--td-text-color-secondary);
+            font-size: 13px;
+            margin-bottom: 0;
+        }
+
+        .chart-summary strong {
+            color: var(--td-text-color-primary);
+            font-weight: normal;
+            margin-left: 4px;
+        }
+
+        .intraday-chart {
+            width: 100%;
+            height: 360px;
+            margin-top: 24px;
+            border: 1px solid var(--td-border-level-1-color);
+            border-radius: 4px;
+        }
+
+        .chart-message {
+            padding: 24px 0;
+            color: var(--td-text-color-secondary);
+            text-align: center;
+        }
+
     </style>
     <!-- 百度统计 -->
     <script>
@@ -980,7 +1039,7 @@
                     <th style="width: 66px; text-align: right;">昨收</th>
                     <th style="width: 68px; text-align: right;">最高价</th>
                     <th style="width: 68px; text-align: right;">最低价</th>
-                    <th style="width: 72px; text-align: right;">成交(万手)</th>
+                    <th style="width: 82px; text-align: right;">成交(万手)</th>
                     <th style="width: 60px; text-align: right;">换手率</th>
                     <th style="width: 66px; text-align: center;">操作</th>
                 </tr>
@@ -1001,10 +1060,11 @@
         let updateInterval = null;
         let sseConnection = null;  // SSE 连接
         let sessionTimer = null;   // 14分钟会话超时兜底定时器
-        let stockDatabase = [];
         let currentSearchResults = [];
         let sortState = null; // null | 'percent-asc' | 'percent-desc'
-        let stealthMode = true; // 隐身模式默认开启
+        let stealthMode = true; // 默认黑色显示涨跌，开启“红涨绿跌”时关闭该模式
+        let intradayChart = null;
+        let echartsLoadingPromise = null;
 
         // ========== 激活码验证 ==========
         var VERIFY_CODES = ['987987', '201712', '960807', '110630'];
@@ -1065,7 +1125,6 @@
 
         function startInitialization() {
             loadPageTitle();
-            loadStockDatabase();
             loadStocks();
             renderTable();
 
@@ -1074,7 +1133,7 @@
             sortState = savedSort || null;
             updateSortIndicator();
 
-            // 恢复隐身模式
+            // 恢复涨跌颜色显示模式
             var savedStealth = localStorage.getItem('stealthMode');
             stealthMode = savedStealth === null ? true : savedStealth === 'true';
             applyStealthMode();
@@ -1182,68 +1241,11 @@
             });
         }
 
-        async function loadStockDatabase() {
-            try {
-                stockDatabase = await requestJson('/api/stock-database');
-                console.log('股票数据库加载成功，共', stockDatabase.length, '只股票');
-
-                var input = document.getElementById('stockInput');
-                if (input && input.value.trim()) {
-                    searchStock(input.value);
-                }
-            } catch (error) {
-                console.error('加载股票数据库失败：', error);
-                var dropdown = document.getElementById('searchDropdown');
-                if (dropdown) {
-                    dropdown.innerHTML = '<div class="search-empty">股票数据库加载失败<br><span style="font-size:12px;color:#999">请确认通过 http://localhost:3000 打开页面</span></div>';
-                    dropdown.classList.add('visible');
-                }
-            }
-        }
-
-        function normalizeSearchText(text) {
-            return String(text || '')
-                .toLowerCase()
-                .replace(/[\s\-_/\\.·()（）]+/g, '')
-                .trim();
-        }
-
         function decodeUnicode(str) {
             if (!str) return '';
             return str.replace(/\\u([\dA-Fa-f]{4})/g, function(_, hex) {
                 return String.fromCharCode(parseInt(hex, 16));
             });
-        }
-
-        function isFuzzySequenceMatch(target, query) {
-            if (!query) return false;
-
-            var targetIndex = 0;
-            for (var queryIndex = 0; queryIndex < query.length; queryIndex++) {
-                targetIndex = target.indexOf(query[queryIndex], targetIndex);
-                if (targetIndex === -1) return false;
-                targetIndex++;
-            }
-
-            return true;
-        }
-
-        function getSearchScore(stock, query) {
-            var normalizedQuery = normalizeSearchText(query);
-            var normalizedName = normalizeSearchText(stock.name);
-            var normalizedCode = normalizeSearchText(stock.code);
-            var codeWithoutMarket = normalizedCode.replace(/^(sh|sz|hk|us)/, '');
-
-            if (!normalizedQuery) return 0;
-            if (normalizedCode === normalizedQuery || codeWithoutMarket === normalizedQuery) return 100;
-            if (normalizedName === normalizedQuery) return 95;
-            if (normalizedName.startsWith(normalizedQuery)) return 85;
-            if (normalizedCode.indexOf(normalizedQuery) !== -1 || codeWithoutMarket.indexOf(normalizedQuery) !== -1) return 80;
-            if (normalizedName.indexOf(normalizedQuery) !== -1) return 70;
-            if (isFuzzySequenceMatch(normalizedName, normalizedQuery)) return 55;
-            if (isFuzzySequenceMatch(normalizedCode, normalizedQuery)) return 60;
-
-            return 0;
         }
 
         function getSearchThreshold(query) {
@@ -1487,7 +1489,7 @@
                 html += '<tr id="row-' + index + '" draggable="true">' +
                     '<td style="text-align: center;">' + (index + 1) + '</td>' +
                     '<td style="text-align: left;"><span class="stock-name" id="name-' + index + '" data-tooltip="' + code.toUpperCase() + '">加载中...</span></td>' +
-                    '<td style="text-align: right;"><span class="stock-price" id="price-' + index + '">-</span></td>' +
+                    '<td style="text-align: right;"><button class="stock-price" id="price-' + index + '" disabled>-</button></td>' +
                     '<td style="text-align: right;"><span id="change-' + index + '">-</span></td>' +
                     '<td style="text-align: right;"><span id="percent-' + index + '">-</span></td>' +
                     '<td style="text-align: right;"><span class="stock-price" id="closeYest-' + index + '">-</span></td>' +
@@ -1613,36 +1615,243 @@
                 if (!document.getElementById('row-' + index)) return;
 
                 document.getElementById('name-' + index).textContent = stock.name;
-                document.getElementById('price-' + index).textContent = formatPrice(stock.currentPrice, stock.stale);
+                var priceEl = document.getElementById('price-' + index);
+                priceEl.textContent = formatPrice(stock.currentPrice, stock.stale);
+                var code = monitoredStocks[index] || stock.code || '';
+                if (isIntradaySupportedCode(code) && !stock.stale) {
+                    priceEl.className = 'stock-price stock-price-link';
+                    priceEl.disabled = false;
+                    priceEl.title = '查看当日走势图';
+                    priceEl.onclick = function() { openIntradayChart(index); };
+                } else {
+                    priceEl.className = 'stock-price';
+                    priceEl.disabled = true;
+                    priceEl.title = '';
+                    priceEl.onclick = null;
+                }
                 document.getElementById('closeYest-' + index).textContent = formatPrice(stock.yesterdayClose, stock.stale);
                 document.getElementById('high-' + index).textContent = formatPrice(stock.highPrice, stock.stale);
                 document.getElementById('low-' + index).textContent = formatPrice(stock.lowPrice, stock.stale);
                 
                 var changeEl = document.getElementById('change-' + index);
                 var changeVal = stock.change;
-                changeEl.textContent = stock.stale ? '-' : (changeVal >= 0 ? '+' : '') + changeVal.toFixed(2);
-                changeEl.className = changeVal > 0 ? 'stock-change-up' : changeVal < 0 ? 'stock-change-down' : 'stock-change-flat';
+                if (stock.stale || changeVal == null || isNaN(changeVal) || changeVal === 0) {
+                    changeEl.textContent = '';
+                    changeEl.className = '';
+                } else {
+                    changeEl.textContent = (changeVal >= 0 ? '+' : '') + changeVal.toFixed(2);
+                    changeEl.className = changeVal > 0 ? 'stock-change-up' : changeVal < 0 ? 'stock-change-down' : 'stock-change-flat';
+                }
                 
                 var percentEl = document.getElementById('percent-' + index);
                 var percentVal = stock.changePercent;
-                percentEl.textContent = stock.stale ? '-' : (percentVal >= 0 ? '+' : '') + percentVal.toFixed(2) + '%';
-                percentEl.className = percentVal > 0 ? 'stock-change-up' : percentVal < 0 ? 'stock-change-down' : 'stock-change-flat';
+                if (stock.stale || percentVal == null || isNaN(percentVal) || percentVal === 0) {
+                    percentEl.textContent = '';
+                    percentEl.className = '';
+                } else {
+                    percentEl.textContent = (percentVal >= 0 ? '+' : '') + percentVal.toFixed(2) + '%';
+                    percentEl.className = percentVal > 0 ? 'stock-change-up' : percentVal < 0 ? 'stock-change-down' : 'stock-change-flat';
+                }
                 
-                document.getElementById('volume-' + index).textContent = stock.stale ? '-' : formatVolume(stock.volume);
-                document.getElementById('turnover-' + index).textContent = stock.stale ? '-' : (stock.turnoverRate > 0 ? stock.turnoverRate.toFixed(2) + '%' : '-');
+                var volVal = stock.volume;
+                document.getElementById('volume-' + index).textContent = (stock.stale || volVal == null || isNaN(volVal) || volVal === 0) ? '' : formatVolume(volVal);
+                
+                var trVal = stock.turnoverRate;
+                document.getElementById('turnover-' + index).textContent = (stock.stale || trVal == null || isNaN(trVal) || trVal === 0) ? '' : (trVal.toFixed(2) + '%');
             });
         }
 
         function formatPrice(price, stale) {
             var value = parseFloat(price);
-            if (stale || isNaN(value)) return '-';
+            if (stale || isNaN(value) || value === 0) return '';
             return value.toFixed(2);
         }
 
         function formatVolume(volume) {
             var vol = parseInt(volume);
-            if (isNaN(vol)) return '-';
+            if (isNaN(vol) || vol === 0) return '';
             return (vol / 10000).toFixed(2);
+        }
+
+        function formatIntradayVolume(volume, code) {
+            var value = Number(volume);
+            if (!isFinite(value)) return '-';
+            if (/^hk/i.test(code || '')) {
+                if (value >= 100000000) return (value / 100000000).toFixed(2) + '亿股';
+                if (value >= 10000) return (value / 10000).toFixed(2) + '万股';
+                return value.toFixed(0) + '股';
+            }
+            return (value / 10000).toFixed(2) + '万手';
+        }
+
+        function isIntradaySupportedCode(code) {
+            return /^(sh|sz|bj)\d{6}$/i.test(code || '') || /^hk\d{5}$/i.test(code || '');
+        }
+
+        function formatAmount(amount) {
+            var value = Number(amount);
+            if (!isFinite(value)) return '-';
+            if (value >= 100000000) return (value / 100000000).toFixed(2) + '亿';
+            if (value >= 10000) return (value / 10000).toFixed(2) + '万';
+            return value.toFixed(0);
+        }
+
+        function summaryItem(label, value) {
+            return '<span>' + label + '：<strong>' + value + '</strong></span>';
+        }
+
+        function loadECharts() {
+            if (window.echarts) return Promise.resolve(window.echarts);
+            if (echartsLoadingPromise) return echartsLoadingPromise;
+
+            echartsLoadingPromise = new Promise(function(resolve, reject) {
+                var script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js';
+                script.async = true;
+                script.onload = function() { resolve(window.echarts); };
+                script.onerror = function() { reject(new Error('走势图组件加载失败')); };
+                document.head.appendChild(script);
+            });
+
+            return echartsLoadingPromise;
+        }
+
+        async function openIntradayChart(index) {
+            var code = monitoredStocks[index];
+            if (!code) return;
+
+            var nameEl = document.getElementById('name-' + index);
+            var title = ((nameEl && nameEl.textContent) || code).trim() + ' ' + code.toUpperCase();
+            document.getElementById('intradayTitle').textContent = title;
+            document.getElementById('intradaySummary').innerHTML = '';
+            document.getElementById('intradayMessage').textContent = '加载中...';
+            document.getElementById('intradayMessage').style.display = 'block';
+            document.getElementById('intradayChart').style.display = 'none';
+            document.getElementById('intradayModal').classList.add('show');
+
+            try {
+                var result = await requestJson('/api/intraday?code=' + encodeURIComponent(code));
+                if (!result.success || !result.data || !result.data.points || result.data.points.length === 0) {
+                    throw new Error(result.error || '暂无当日走势图数据');
+                }
+
+                await loadECharts();
+                renderIntradayChart(result.data);
+            } catch (error) {
+                document.getElementById('intradayMessage').textContent = error.message || '走势图加载失败';
+                document.getElementById('intradayMessage').style.display = 'block';
+                document.getElementById('intradayChart').style.display = 'none';
+            }
+        }
+
+        function closeIntradayChart() {
+            document.getElementById('intradayModal').classList.remove('show');
+            if (intradayChart) {
+                intradayChart.dispose();
+                intradayChart = null;
+            }
+        }
+
+        function renderIntradayChart(data) {
+            var chartEl = document.getElementById('intradayChart');
+            var messageEl = document.getElementById('intradayMessage');
+            var summaryEl = document.getElementById('intradaySummary');
+            var points = data.points || [];
+            var decimals = data.decimal || 2;
+            var latest = points[points.length - 1];
+            var first = points[0];
+            var preClose = Number(data.preClose) || (first && first.price) || 0;
+            var change = latest ? latest.price - preClose : 0;
+            var changePercent = preClose ? change / preClose * 100 : 0;
+            var hasAverage = points.some(function(point) { return point.average > 0; });
+            var quote = data.quote || {};
+            var latestPrice = quote.currentPrice || (latest && latest.price) || 0;
+            var openPrice = first && first.price ? first.price : 0;
+            var highPrice = quote.highPrice || Math.max.apply(null, points.map(function(p) { return p.price; }));
+            var lowPrice = quote.lowPrice || Math.min.apply(null, points.map(function(p) { return p.price; }));
+            var latestVolume = latest ? latest.volume : 0;
+            var latestAmount = latest ? latest.amount : 0;
+            var turnoverText = quote.turnoverRate > 0 ? quote.turnoverRate.toFixed(2) + '%' : '-';
+            var priceLabelMaxLength = points.reduce(function(max, point) {
+                return Math.max(max, Number(point.price).toFixed(decimals).length);
+            }, 0);
+            var yAxisLabelWidth = Math.max(42, Math.min(92, priceLabelMaxLength * 8));
+            var gridLeft = yAxisLabelWidth + 18;
+
+            summaryEl.innerHTML =
+                summaryItem('最新', latestPrice ? latestPrice.toFixed(decimals) : '-') +
+                summaryItem('涨跌幅', (changePercent >= 0 ? '+' : '') + changePercent.toFixed(2) + '%') +
+                summaryItem('今开', openPrice ? openPrice.toFixed(decimals) : '-') +
+                summaryItem('昨收', preClose ? preClose.toFixed(decimals) : '-') +
+                summaryItem('最高', isFinite(highPrice) ? highPrice.toFixed(decimals) : '-') +
+                summaryItem('最低', isFinite(lowPrice) ? lowPrice.toFixed(decimals) : '-') +
+                summaryItem('累计成交', formatIntradayVolume(latestVolume, data.code)) +
+                summaryItem('成交额', formatAmount(latestAmount)) +
+                summaryItem('换手率', turnoverText);
+
+            messageEl.textContent = '';
+            messageEl.style.display = 'none';
+            chartEl.style.display = 'block';
+
+            if (intradayChart) {
+                intradayChart.dispose();
+            }
+            intradayChart = echarts.init(chartEl);
+            intradayChart.setOption({
+                animation: false,
+                grid: { left: gridLeft, right: 28, top: 24, bottom: 42 },
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function(params) {
+                        var item = params && params[0];
+                        if (!item) return '';
+                        var point = points[item.dataIndex];
+                        var lines = [
+                            point.time,
+                            '价格：' + point.price.toFixed(decimals)
+                        ];
+                        if (point.average > 0) {
+                            lines.push('均价：' + point.average.toFixed(decimals));
+                        }
+                        lines.push('成交量：' + formatIntradayVolume(point.volumeDelta, data.code));
+                        lines.push('成交额：' + formatAmount(point.amountDelta));
+                        return lines.join('<br>');
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: points.map(function(p) { return p.time; }),
+                    axisTick: { show: false },
+                    axisLabel: { fontSize: 11 }
+                },
+                yAxis: {
+                    type: 'value',
+                    scale: true,
+                    axisLabel: {
+                        fontSize: 11,
+                        width: yAxisLabelWidth,
+                        align: 'right',
+                        margin: 10,
+                        formatter: function(value) { return Number(value).toFixed(decimals); }
+                    },
+                    splitLine: { lineStyle: { type: 'dashed', color: '#e7e7e7' } }
+                },
+                series: [{
+                    name: '价格',
+                    type: 'line',
+                    data: points.map(function(p) { return p.price; }),
+                    symbol: 'none',
+                    lineStyle: { width: 1.5, color: '#0052D9' },
+                    areaStyle: { color: 'rgba(0, 82, 217, 0.08)' }
+                }].concat(hasAverage ? [{
+                    name: '均价',
+                    type: 'line',
+                    data: points.map(function(p) { return p.average || null; }),
+                    symbol: 'none',
+                    lineStyle: { width: 1, color: '#f5a623', type: 'dashed' }
+                }] : [])
+            });
         }
 
         function startAutoUpdate() {
@@ -1822,12 +2031,12 @@
             var dashboardEnabled = isIndexDashboardEnabled();
             var html = '';
 
-            // 隐身模式 + 指数看板 并排
+            // 涨跌颜色 + 指数看板 并排
             html += '<div class="index-config-toggle-row">';
             html += '<div class="index-config-toggle">';
-            html += '<span class="toggle-label">隐身模式</span>';
+            html += '<span class="toggle-label">红涨绿跌</span>';
             html += '<label class="toggle-switch">';
-            html += '<input type="checkbox" id="stealthModeToggle"' + (stealthMode ? ' checked' : '') + '>';
+            html += '<input type="checkbox" id="stealthModeToggle"' + (!stealthMode ? ' checked' : '') + '>';
             html += '<span class="toggle-slider"></span>';
             html += '</label>';
             html += '</div>';
@@ -1885,9 +2094,9 @@
             var enabled = toggleEl ? toggleEl.checked : true;
             saveIndexDashboardEnabled(enabled);
 
-            // 保存隐身模式
+            // 保存涨跌颜色显示模式：开关关闭为黑色，打开为红涨绿跌
             var stealthEl = document.getElementById('stealthModeToggle');
-            stealthMode = stealthEl ? stealthEl.checked : true;
+            stealthMode = stealthEl ? !stealthEl.checked : true;
             localStorage.setItem('stealthMode', stealthMode.toString());
             applyStealthMode();
 
@@ -1969,6 +2178,11 @@
 
         document.addEventListener('click', function(e) {
             if (e.target.id === 'indexConfigModal') closeIndexConfig();
+            if (e.target.id === 'intradayModal') closeIntradayChart();
+        });
+
+        window.addEventListener('resize', function() {
+            if (intradayChart) intradayChart.resize();
         });
 
         window.onbeforeunload = function() {
@@ -2029,6 +2243,20 @@
             <div class="modal-footer">
                 <button onclick="closeIndexConfig()">取消</button>
                 <button class="btn-primary" onclick="saveIndexConfig()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="intradayModal">
+        <div class="modal-dialog chart-dialog">
+            <div class="modal-header">
+                <span id="intradayTitle">当日走势图</span>
+                <button class="modal-close" onclick="closeIntradayChart()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="chart-summary" id="intradaySummary"></div>
+                <div class="chart-message" id="intradayMessage"></div>
+                <div class="intraday-chart" id="intradayChart" style="display:none"></div>
             </div>
         </div>
     </div>
