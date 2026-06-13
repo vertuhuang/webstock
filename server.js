@@ -641,6 +641,17 @@ app.post('/api/stocks', async function(req, res) {
     }
 });
 
+app.get('/api/stock-database', function(req, res) {
+    const dbPath = path.join(__dirname, 'stock-database.json');
+    res.sendFile(dbPath, function(error) {
+        if (!error) return;
+        console.error('[StockDatabase] Send failed:', error.message);
+        if (!res.headersSent) {
+            res.status(404).json({success: false, error: 'stock database not found'});
+        }
+    });
+});
+
 // ========= 搜索缓存 =========
 var searchCache = {};
 var SEARCH_CACHE_TTL = 5000; // 5秒

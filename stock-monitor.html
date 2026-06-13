@@ -40,7 +40,7 @@
             font-family: "Microsoft YaHei", "微软雅黑", "SimSun", "宋体", Arial, sans-serif;
             background: #eee;
             color: #000000;
-            font-size: 14px;
+            font-size: 13px;
             line-height: 1.6;
             padding: 20px;
             min-height: 100vh;
@@ -63,7 +63,8 @@
         }
 
         .header h1 {
-            font-size: 28px;
+            font-size: 20px;
+            font-weight: bold;
             color: #000000;
             margin-bottom: 6px;
             font-weight: bold;
@@ -118,7 +119,7 @@
 
         .index-name {
             color: #666;
-            font-size: 12px;
+            font-size: 13px;
             flex-shrink: 0;
         }
 
@@ -129,7 +130,7 @@
         }
 
         .index-change {
-            font-size: 12px;
+            font-size: 13px;
             flex-shrink: 0;
             white-space: nowrap;
             color: #666;
@@ -227,7 +228,7 @@
             border: 1px solid #dee2e6;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             transition: all 0.3s;
             font-family: inherit;
             display: inline-flex;
@@ -274,7 +275,7 @@
 
         .modal-header {
             padding: 24px 24px 20px;
-            font-size: 16px;
+            font-size: 13px;
             font-weight: var(--td-font-weight-medium);
             color: var(--td-text-color-primary);
             display: flex;
@@ -293,7 +294,7 @@
             border: none;
             background: none;
             color: var(--td-text-color-secondary);
-            font-size: 16px;
+            font-size: 13px;
             transition: all 0.2s;
         }
 
@@ -375,7 +376,7 @@
             padding: 8px 12px;
             border: 1px solid #dee2e6;
             border-radius: 4px;
-            font-size: 14px;
+            font-size: 13px;
             color: #000000;
             background: #ffffff;
             outline: none;
@@ -398,7 +399,7 @@
             border: 1px solid #dee2e6;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             transition: all 0.3s;
             font-family: inherit;
         }
@@ -421,7 +422,7 @@
             z-index: 1000;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             display: none;
-            font-size: 12px;
+            font-size: 13px;
         }
 
         .search-dropdown.visible {
@@ -449,17 +450,17 @@
         .search-item-name {
             font-weight: bold;
             color: #000000;
-            font-size: 12px;
+            font-size: 13px;
         }
 
         .search-item-code {
             color: #666666;
-            font-size: 12px;
+            font-size: 13px;
             margin-top: 2px;
         }
 
         .search-item-market {
-            font-size: 12px;
+            font-size: 13px;
             color: #999999;
             padding: 2px 6px;
             background: #f0f0f0;
@@ -470,7 +471,7 @@
             padding: 20px;
             text-align: center;
             color: #999999;
-            font-size: 12px;
+            font-size: 13px;
         }
 
         .table-wrapper {
@@ -484,7 +485,7 @@
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
-            font-size: 12px;
+            font-size: 13px;
             font-family: inherit;
         }
 
@@ -519,7 +520,7 @@
             padding: 8px 10px;
             text-align: left;
             font-weight: normal;
-            font-size: 12px;
+            font-size: 13px;
             border-right: 1px solid #dee2e6;
             border-bottom: 1px solid #dee2e6;
             font-family: inherit;
@@ -549,7 +550,7 @@
             padding: 6px 10px;
             border-right: 1px solid #dee2e6;
             border-bottom: 1px solid #dee2e6;
-            font-size: 12px;
+            font-size: 13px;
             color: #000000;
             font-family: inherit;
         }
@@ -567,7 +568,7 @@
             position: relative;
             font-weight: normal;
             color: #000000;
-            font-size: 12px;
+            font-size: 13px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -588,7 +589,7 @@
             padding: 3px 8px;
             background: #333;
             color: #fff;
-            font-size: 12px;
+            font-size: 13px;
             border-radius: 3px;
             white-space: nowrap;
             z-index: 100;
@@ -597,7 +598,7 @@
 
         .stock-price {
             font-weight: normal;
-            font-size: 12px;
+            font-size: 13px;
             color: #000000;
         }
 
@@ -624,7 +625,7 @@
 
         .stock-volume {
             color: #000000;
-            font-size: 12px;
+            font-size: 13px;
         }
 
         .delete-btn {
@@ -704,7 +705,7 @@
 
         .empty-state p {
             margin-top: 10px;
-            font-size: 12px;
+            font-size: 13px;
         }
 
         .loading {
@@ -904,6 +905,7 @@
         .session-alert.show {
             display: block;
         }
+
     </style>
     <!-- 百度统计 -->
     <script>
@@ -999,6 +1001,7 @@
         let updateInterval = null;
         let sseConnection = null;  // SSE 连接
         let sessionTimer = null;   // 14分钟会话超时兜底定时器
+        let stockDatabase = [];
         let currentSearchResults = [];
         let sortState = null; // null | 'percent-asc' | 'percent-desc'
         let stealthMode = true; // 隐身模式默认开启
@@ -1062,6 +1065,7 @@
 
         function startInitialization() {
             loadPageTitle();
+            loadStockDatabase();
             loadStocks();
             renderTable();
 
@@ -1176,6 +1180,25 @@
 
                 xhr.send(options.body || null);
             });
+        }
+
+        async function loadStockDatabase() {
+            try {
+                stockDatabase = await requestJson('/api/stock-database');
+                console.log('股票数据库加载成功，共', stockDatabase.length, '只股票');
+
+                var input = document.getElementById('stockInput');
+                if (input && input.value.trim()) {
+                    searchStock(input.value);
+                }
+            } catch (error) {
+                console.error('加载股票数据库失败：', error);
+                var dropdown = document.getElementById('searchDropdown');
+                if (dropdown) {
+                    dropdown.innerHTML = '<div class="search-empty">股票数据库加载失败<br><span style="font-size:12px;color:#999">请确认通过 http://localhost:3000 打开页面</span></div>';
+                    dropdown.classList.add('visible');
+                }
+            }
         }
 
         function normalizeSearchText(text) {
@@ -1630,6 +1653,11 @@
             if (sessionTimer) {
                 clearTimeout(sessionTimer);
             }
+            if (updateInterval) {
+                clearInterval(updateInterval);
+                updateInterval = null;
+            }
+            var lastSseDataAt = 0;
             sseConnection = new EventSource('/api/stream');
 
             // 监听股票数据推送
@@ -1637,6 +1665,7 @@
                 try {
                     var msg = JSON.parse(e.data);
                     if (msg.success && msg.data) {
+                        lastSseDataAt = Date.now();
                         updateTableData(msg.data);
                         applySort();
                         document.getElementById('updateTime').textContent =
@@ -1667,6 +1696,13 @@
             // 首次加载立即请求一次
             updateStockData();
             updateIndexBar();
+
+            // SSE 静默兜底：若长时间没有收到有效推送，退回到短轮询刷新
+            updateInterval = setInterval(function() {
+                if (!lastSseDataAt || Date.now() - lastSseDataAt > 5000) {
+                    updateStockData();
+                }
+            }, 3000);
 
             // 指数跟随 SSE 节奏更新：每 3 次推送（约 9 秒）更新一次指数看板
             var indexTick = 0;
@@ -1832,9 +1868,12 @@
         }
 
         function saveIndexConfig() {
-            var checks = document.querySelectorAll('#indexConfigBody input[type=checkbox]:checked');
+            // 保存指数看板配置
+            var checks = document.querySelectorAll('#indexConfigBody input[type=checkbox]');
             var codes = [];
-            checks.forEach(function(cb) { codes.push(cb.value); });
+            checks.forEach(function(cb) {
+                if (cb.checked && cb.value) codes.push(cb.value);
+            });
             if (codes.length === 0) {
                 alert('至少选择一个指数');
                 return;
